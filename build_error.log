@@ -1,0 +1,15 @@
+
+> astro-portfolio@0.0.1 build
+> astro build
+
+[31m[NoAdapterInstalled][39m Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.
+  [1mHint:[22m
+[33m    See [4mhttps://docs.astro.build/en/guides/on-demand-rendering/[24m for more information.[39m
+  [1mError reference:[22m
+    [36m[4mhttps://docs.astro.build/en/reference/errors/no-adapter-installed/[24m[39m
+  [1mLocation:[22m
+    [4mC:\Users\rayna\Pictures\portofolio ray\astro-portfolio\node_modules\astro\dist\core\build\index.js:80:13[24m
+  [1mStack trace:[22m
+[2m    at AstroBuilder.setup (file:///C:/Users/rayna/Pictures/portofolio%20ray/astro-portfolio/node_modules/astro/dist/core/build/index.js:80:13)
+    at async build (file:///C:/Users/rayna/Pictures/portofolio%20ray/astro-portfolio/node_modules/astro/dist/core/build/index.js:45:3)
+    at async runCommand (file:///C:/Users/rayna/Pictures/portofolio%20ray/astro-portfolio/node_modules/astro/dist/cli/index.js:210:7)[22m

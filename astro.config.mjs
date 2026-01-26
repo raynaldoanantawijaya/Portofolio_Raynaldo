@@ -1,13 +1,20 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { VitePWA } from 'vite-plugin-pwa';
+import vercel from '@astrojs/vercel';
 
 import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
     site: 'https://raynaldoanantawijaya.my.id',
+    output: 'server',
+    adapter: vercel({
+        imageService: true,
+        webAnalytics: {
+            enabled: true,
+        },
+    }),
     integrations: [sitemap(), react()],
     vite: {
         plugins: [
