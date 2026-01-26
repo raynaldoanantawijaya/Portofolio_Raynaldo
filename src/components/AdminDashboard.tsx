@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getContentAsync, saveContentAsync } from '../utils/contentStore';
-import { uploadPDF } from '../lib/cloudinary';
+import { uploadPDF, deleteCV } from '../lib/cloudinary';
 // @ts-ignore
 import type { SiteContent, Project, Skill } from '../data/siteContent';
 import ProjectEditor from './ProjectEditor';
@@ -265,6 +265,28 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleCVDelete = async () => {
+        if (!content?.hero.cvFile) return;
+
+        if (!confirm('Apakah Anda yakin ingin menghapus CV ini?')) return;
+
+        try {
+            await deleteCV(content.hero.cvFile);
+
+            setContent({
+                ...content,
+                hero: {
+                    ...content.hero,
+                    cvFile: ''
+                }
+            });
+            alert('CV berhasil dihapus!');
+        } catch (error: any) {
+            console.error('Delete error details:', error);
+            alert(`Gagal menghapus CV: ${error.message || 'Unknown error'}`);
+        }
+    };
+
 
 
     if (!content) return <div className="flex items-center justify-center h-screen bg-[#121212] text-slate-400">Loading CMS...</div>;
@@ -496,9 +518,9 @@ export default function AdminDashboard() {
                                                     <p className="text-xs text-primary truncate">Siap didownload</p>
                                                 </div>
                                                 <button
-                                                    onClick={() => setContent({ ...content, hero: { ...content.hero, cvFile: '' } })}
+                                                    onClick={handleCVDelete}
                                                     className="text-slate-400 hover:text-red-500 transition-colors"
-                                                    title="Hapus File"
+                                                    title="Hapus File & Hapus dari Cloudinary"
                                                 >
                                                     <span className="material-symbols-outlined">delete</span>
                                                 </button>
