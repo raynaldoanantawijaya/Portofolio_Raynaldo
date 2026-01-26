@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 
 // Admin email
-const ADMIN_EMAIL = 'anantawijaya212@gmail.com';
+const ADMIN_EMAIL = 'raynaldoanantawijaya180@gmail.com';
 
 // Login
 export async function loginAdmin(email: string, password: string): Promise<{ success: boolean; error?: string }> {

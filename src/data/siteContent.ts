@@ -109,7 +109,7 @@ export const defaultContent: SiteContent = {
     },
     contact: {
         title: "Kontak Saya",
-        email: "raynaldo@example.com",
+        email: "raynaldoanantawijaya180@gmail.com",
         form: {
             nameLabel: "Nama Lengkap",
             emailLabel: "Email",
@@ -118,7 +118,7 @@ export const defaultContent: SiteContent = {
         }
     },
     socialLinks: {
-        email: "raynaldoananta@gmail.com",
+        email: "raynaldoanantawijaya180@gmail.com",
         emailIcon: "fas fa-envelope",
         linkedin: "raynaldo-ananta-wijaya-4934b2370",
         linkedinIcon: "fab fa-linkedin",
