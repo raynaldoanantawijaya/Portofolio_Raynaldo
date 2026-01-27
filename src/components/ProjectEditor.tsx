@@ -355,7 +355,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             <input
                                 type="file"
                                 ref={imageInputRef}
-                                accept="image/*"
+                                accept=".jpg, .jpeg, .png, .webp"
                                 onChange={handleImageUpload}
                                 className="hidden"
                             />
@@ -469,7 +469,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                             <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors">Click to upload image</span>
                                         </>
                                     )}
-                                    <input type="file" accept="image/*" onChange={handleFeaturedImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    <input type="file" accept=".jpg, .jpeg, .png, .webp" onChange={handleFeaturedImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
                                 </div>
                             </div>
                         </aside>
