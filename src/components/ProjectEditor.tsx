@@ -20,6 +20,9 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const featuredImageInputRef = useRef<HTMLInputElement>(null);
     const colorInputRef = useRef<HTMLInputElement>(null);
     const [activeCommands, setActiveCommands] = useState<Record<string, boolean>>({});
+    const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+    const [imageRect, setImageRect] = useState<DOMRect | null>(null);
+    const [isResizing, setIsResizing] = useState(false);
 
     // Update active state of formatting commands
     const updateActiveCommands = () => {
@@ -37,10 +40,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         });
     };
 
-    // Listen for selection changes
+    // Listen for selection changes and scroll
     useEffect(() => {
+        const updateOverlay = () => {
+            if (selectedImage) {
+                setImageRect(selectedImage.getBoundingClientRect());
+            }
+        };
+
         const handler = () => {
-            // Check if selection is within the editor
             const selection = window.getSelection();
             if (selection && selection.rangeCount > 0) {
                 const range = selection.getRangeAt(0);
@@ -48,10 +56,32 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     updateActiveCommands();
                 }
             }
+
+            // Detect if an image is selected (via selection or click)
+            const target = selection?.focusNode?.childNodes[selection.focusOffset] as HTMLElement;
+            if (target?.tagName === 'IMG') {
+                setSelectedImage(target as HTMLImageElement);
+                setImageRect(target.getBoundingClientRect());
+            } else if (!isResizing) {
+                // Don't deselect if we are currently resizing
+                setSelectedImage(null);
+                setImageRect(null);
+            }
         };
+
         document.addEventListener('selectionchange', handler);
-        return () => document.removeEventListener('selectionchange', handler);
-    }, []);
+        window.addEventListener('resize', updateOverlay);
+
+        // Listen for scroll in the editor container
+        const scrollContainer = editorRef.current?.parentElement;
+        scrollContainer?.addEventListener('scroll', updateOverlay);
+
+        return () => {
+            document.removeEventListener('selectionchange', handler);
+            window.removeEventListener('resize', updateOverlay);
+            scrollContainer?.removeEventListener('scroll', updateOverlay);
+        };
+    }, [selectedImage, isResizing]);
 
     // Initial content load
     useEffect(() => {
@@ -132,6 +162,16 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             reader.onload = (ev) => {
                 const dataUrl = ev.target?.result as string;
                 execCommand('insertImage', dataUrl);
+
+                // Small delay to let the DOM update, then find the newly inserted image
+                setTimeout(() => {
+                    const images = editorRef.current?.querySelectorAll('img');
+                    if (images && images.length > 0) {
+                        const lastImg = images[images.length - 1];
+                        setSelectedImage(lastImg);
+                        setImageRect(lastImg.getBoundingClientRect());
+                    }
+                }, 50);
             };
             reader.readAsDataURL(file);
         }
@@ -161,14 +201,54 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const handleEditorClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
         if (target.tagName === 'IMG') {
-            // Show delete confirmation
-            if (confirm('Hapus gambar ini?')) {
-                target.remove();
-                if (editorRef.current) {
-                    setContent(editorRef.current.innerHTML);
-                }
+            setSelectedImage(target as HTMLImageElement);
+            setImageRect(target.getBoundingClientRect());
+        } else {
+            setSelectedImage(null);
+            setImageRect(null);
+        }
+    };
+
+    const handleDeleteImage = () => {
+        if (selectedImage) {
+            selectedImage.remove();
+            setSelectedImage(null);
+            setImageRect(null);
+            if (editorRef.current) {
+                setContent(editorRef.current.innerHTML);
             }
         }
+    };
+
+    const handleResizeStart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsResizing(true);
+
+        const startX = e.clientX;
+        const startWidth = selectedImage?.offsetWidth || 0;
+
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            if (selectedImage) {
+                const deltaX = moveEvent.clientX - startX;
+                const newWidth = Math.max(50, startWidth + deltaX);
+                selectedImage.style.width = `${newWidth}px`;
+                selectedImage.style.height = 'auto';
+                setImageRect(selectedImage.getBoundingClientRect());
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            if (editorRef.current) {
+                setContent(editorRef.current.innerHTML);
+            }
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     };
 
     return (
@@ -498,6 +578,44 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     </div>
                 </main>
             </div>
+
+            {/* Image Editing Overlay */}
+            {selectedImage && imageRect && (
+                <div
+                    className="fixed z-[100] pointer-events-none"
+                    style={{
+                        top: imageRect.top,
+                        left: imageRect.left,
+                        width: imageRect.width,
+                        height: imageRect.height,
+                    }}
+                >
+                    <div className="absolute inset-0 border-2 border-primary shadow-[0_0_10px_rgba(255,107,107,0.3)] pointer-events-none"></div>
+
+                    {/* Delete Button */}
+                    <button
+                        onClick={handleDeleteImage}
+                        className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
+                        title="Hapus Gambar"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+
+                    {/* Resize Handle */}
+                    <div
+                        onMouseDown={handleResizeStart}
+                        className="absolute -bottom-2 -right-2 w-5 h-5 bg-white border-2 border-primary rounded-sm cursor-nwse-resize pointer-events-auto flex items-center justify-center shadow-md z-[101]"
+                        title="Tarik untuk mengubah ukuran"
+                    >
+                        <div className="w-1.5 h-1.5 bg-primary/20 rounded-full"></div>
+                    </div>
+
+                    {/* Size Tooltip */}
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
+                        {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
