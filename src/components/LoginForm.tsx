@@ -28,8 +28,8 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#1a1a2e]">
-            <div className="w-full max-w-md p-8 bg-[#1e1e1e] rounded-2xl border border-slate-800 shadow-2xl">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#1a1a2e] p-4">
+            <div className="w-full max-w-md p-6 sm:p-8 bg-[#1e1e1e] rounded-2xl border border-slate-800 shadow-2xl">
                 {/* Logo/Header */}
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center">

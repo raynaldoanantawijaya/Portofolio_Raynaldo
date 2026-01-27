@@ -122,6 +122,7 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('home');
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const cvInputRef = React.useRef<HTMLInputElement>(null);
 
     // UI Animations State
@@ -449,10 +450,48 @@ export default function AdminDashboard() {
 
     // NORMAL DASHBOARD VIEW
     return (
-        <div className="flex h-screen bg-[#121212] font-display text-slate-300 overflow-hidden">
+        <div className="flex h-screen bg-[#121212] font-display text-slate-300 overflow-hidden flex-col lg:flex-row">
+
+            {/* Mobile Header */}
+            <div className="lg:hidden h-16 bg-[#1e1e1e] border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-30">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary p-1.5 rounded-lg text-white">
+                        <span className="material-symbols-outlined text-[20px]">dataset</span>
+                    </div>
+                    <span className="font-bold text-white text-lg">CMS Admin</span>
+                </div>
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="text-slate-400 hover:text-white p-2"
+                >
+                    <span className="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+
+            {/* Mobile Backdrop */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 bg-[#1e1e1e] border-r border-slate-800 flex flex-col z-10 relative">
-                <div className="p-6 border-b border-slate-800 flex flex-col gap-3">
+            <aside className={`
+                fixed inset-y-0 left-0 w-64 bg-[#1e1e1e] border-r border-slate-800 flex flex-col z-50
+                transform transition-transform duration-300 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                lg:relative lg:translate-x-0 lg:z-10
+            `}>
+                <div className="p-6 border-b border-slate-800 flex flex-col gap-3 relative">
+                    {/* Close Button (Mobile Only) */}
+                    <button
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="absolute top-4 right-4 lg:hidden text-slate-500 hover:text-white"
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+
                     <div className="flex items-center gap-3">
                         <div className="bg-primary p-2 rounded-lg text-white">
                             <span className="material-symbols-outlined">dataset</span>
@@ -547,7 +586,7 @@ export default function AdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto relative z-10 p-8 bg-[#121212]">
+            <main className="flex-1 overflow-y-auto relative z-10 p-4 sm:p-8 bg-[#121212]">
                 <div className="max-w-4xl mx-auto">
                     {/* Header Section */}
                     <div className="mb-8">
