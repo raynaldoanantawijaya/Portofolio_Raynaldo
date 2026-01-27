@@ -423,9 +423,18 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     {/* Hamburger Menu - Visible on Mobile */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="lg:hidden text-slate-400 hover:text-white transition-colors"
+                        className="lg:hidden text-slate-400 hover:text-white transition-colors p-1"
+                        aria-label="Toggle menu"
                     >
-                        <span className="material-symbols-outlined text-[24px]">{isMobileMenuOpen ? 'close' : 'menu'}</span>
+                        {isMobileMenuOpen ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+                                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+                                <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+                            </svg>
+                        )}
                     </button>
 
                     {/* Search Bar - Visual Only */}
