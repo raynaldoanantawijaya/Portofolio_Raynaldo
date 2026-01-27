@@ -432,8 +432,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             </header>
 
             <div className="flex-1 flex overflow-hidden">
-                {/* Left Slim Sidebar */}
-                <aside className="w-16 bg-[#1e1e1e] border-r border-slate-800 flex flex-col items-center py-4 gap-4">
+                {/* Left Slim Sidebar - Hidden on mobile/tablet */}
+                <aside className="hidden lg:flex w-16 bg-[#1e1e1e] border-r border-slate-800 flex-col items-center py-4 gap-4">
                     <button className="p-2 text-primary bg-primary/10 rounded-lg" title="Edit Post">
                         <span className="material-symbols-outlined text-[24px]">description</span>
                     </button>
@@ -443,366 +443,332 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                 </aside>
 
                 <main className="flex-1 flex flex-col bg-[#121212] overflow-hidden">
-                    {/* Toolbar Header Row */}
-                    <div className="px-6 py-3 flex items-center justify-between bg-[#121212]">
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                    {/* Toolbar Header Row - Simplified for Mobile */}
+                    <div className="px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between bg-[#121212] border-b border-slate-800 lg:border-none">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                             <span className="hover:text-primary transition-colors cursor-pointer" onClick={onCancel}>Posts</span>
-                            <span className="material-symbols-outlined text-xs">chevron_right</span>
-                            <span className="text-slate-300 font-medium">Edit Post</span>
+                            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                            <span className="text-slate-300 font-medium truncate max-w-[80px] sm:max-w-none">Edit Post</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest hidden sm:inline">Unsaved Changes</span>
-                            <button onClick={onCancel} className="px-4 py-1.5 text-sm font-semibold border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Cancel</button>
-                            <button onClick={handleSave} className="px-4 py-1.5 text-sm font-semibold bg-primary text-white rounded-lg hover:bg-primary/90 shadow-lg shadow-primary/10 transition-colors">Publish</button>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest hidden md:inline">Unsaved Changes</span>
+                            <button onClick={onCancel} className="px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Cancel</button>
+                            <button onClick={handleSave} className="px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold bg-primary text-white rounded-lg hover:bg-primary/90 shadow-lg shadow-primary/10 transition-colors">Publish</button>
                         </div>
                     </div>
 
-                    {/* Ribbon Toolbar */}
-                    <div className="bg-[#1e1e1e] border-y border-slate-800 px-4 py-2 flex items-center flex-wrap gap-2 overflow-x-auto selection:bg-primary/30">
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                    {/* Ribbon Toolbar - Scrollable on Mobile */}
+                    <div className="bg-[#1e1e1e] border-y border-slate-800 px-3 sm:px-4 py-2 flex items-center flex-nowrap gap-2 overflow-x-auto scrollbar-hide selection:bg-primary/30 sticky top-0 z-50">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 shrink-0">
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={handlePaste}
-                                className="w-9 h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95"
+                                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95"
                                 title="Paste (Ctrl+V)"
                             >
-                                <span className="material-symbols-outlined text-[20px]">content_paste</span>
+                                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">content_paste</span>
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 shrink-0">
                             <div className="flex items-center gap-1">
                                 <select
                                     onChange={(e) => execCommand('fontName', e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-40 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
+                                    className="text-[11px] sm:text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-8 sm:h-9 w-28 sm:w-40 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 sm:px-3 transition-all hover:bg-slate-800"
                                 >
-                                    <option value="Inter">Inter (Default)</option>
+                                    <option value="Inter">Inter</option>
                                     <option value="Poppins">Poppins</option>
                                     <option value="Arial">Arial</option>
                                     <option value="Verdana">Verdana</option>
-                                    <option value="Tahoma">Tahoma</option>
-                                    <option value="Trebuchet MS">Trebuchet MS</option>
-                                    <option value="Georgia">Georgia</option>
-                                    <option value="Times New Roman">Times New Roman</option>
-                                    <option value="Garamond">Garamond</option>
-                                    <option value="Palatino">Palatino</option>
-                                    <option value="Courier New">Courier New</option>
-                                    <option value="Impact">Impact</option>
-                                    <option value="Comic Sans MS">Comic Sans MS</option>
+                                    <option value="Times New Roman">Times Roman</option>
+                                    <option value="Courier New">Courier</option>
                                 </select>
                                 <select
                                     onChange={(e) => applyFontSize(e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-24 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
+                                    className="text-[11px] sm:text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-8 sm:h-9 w-20 sm:w-24 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 sm:px-3 transition-all hover:bg-slate-800"
                                 >
                                     <option value="16">16px</option>
-                                    <option value="8">8px</option>
-                                    <option value="10">10px</option>
                                     <option value="12">12px</option>
                                     <option value="14">14px</option>
                                     <option value="18">18px</option>
-                                    <option value="20">20px</option>
                                     <option value="24">24px</option>
-                                    <option value="28">28px</option>
                                     <option value="32">32px</option>
-                                    <option value="36">36px</option>
-                                    <option value="42">42px</option>
                                     <option value="48">48px</option>
-                                    <option value="56">56px</option>
-                                    <option value="64">64px</option>
-                                    <option value="72">72px</option>
-                                    <option value="84">84px</option>
                                     <option value="100">100px</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 shrink-0">
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('bold'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.bold ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.bold ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Bold"
                             >
-                                <span className="material-symbols-outlined font-bold text-[18px]">format_bold</span>
+                                <span className="material-symbols-outlined font-bold text-[16px] sm:text-[18px]">format_bold</span>
                             </button>
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('italic'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.italic ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.italic ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Italic"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_italic</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_italic</span>
                             </button>
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('underline'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.underline ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.underline ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Underline"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_underlined</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_underlined</span>
                             </button>
-                            <button
-                                onMouseDown={preventFocusLoss}
-                                onClick={() => { execCommand('strikeThrough'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.strikeThrough ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                title="Strikethrough"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">format_strikethrough</span>
-                            </button>
-                            <div className="w-px h-6 bg-slate-800 mx-1"></div>
-                            <div className="relative w-9 h-9 flex items-center justify-center rounded-md hover:bg-slate-800 transition-all">
-                                <span className="material-symbols-outlined text-[18px] text-slate-400">palette</span>
+                            <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md hover:bg-slate-800 transition-all">
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-slate-400">palette</span>
                                 <input
                                     type="color"
                                     ref={colorInputRef}
                                     onMouseDown={saveSelection}
                                     onChange={(e) => applyColor(e.target.value)}
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    title="Text Color"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 shrink-0">
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('insertUnorderedList'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertUnorderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertUnorderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Bullets"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_list_bulleted</span>
                             </button>
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('insertOrderedList'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertOrderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertOrderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Numbering"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_list_numbered</span>
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 shrink-0">
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('justifyLeft'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyLeft ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyLeft ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Align Left"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_align_left</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_left</span>
                             </button>
                             <button
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => { execCommand('justifyCenter'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyCenter ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyCenter ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                 title="Align Center"
                             >
-                                <span className="material-symbols-outlined text-[18px]">format_align_center</span>
-                            </button>
-                            <button
-                                onMouseDown={preventFocusLoss}
-                                onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                title="Align Right"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">format_align_right</span>
-                            </button>
-                            <button
-                                onMouseDown={preventFocusLoss}
-                                onClick={() => { execCommand('justifyFull'); updateActiveCommands(); }}
-                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyFull ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                title="Justify"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">format_align_justify</span>
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_center</span>
                             </button>
                         </div>
-
-                        <div className="flex items-center gap-1">
-                            <input
-                                type="file"
-                                ref={imageInputRef}
-                                id="body-image-upload"
-                                accept="image/jpeg,image/png,image/webp"
-                                onChange={handleImageUpload}
-                                className="hidden"
-                            />
-                            <button
-                                type="button"
-                                onMouseDown={preventFocusLoss}
-                                onClick={() => {
-                                    setTimeout(() => {
-                                        imageInputRef.current?.click();
-                                    }, 0);
-                                }}
-                                className="w-9 h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95 group"
-                                title="Add Image"
-                            >
-                                <span className="material-symbols-outlined text-[20px]">image</span>
-                            </button>
-                        </div>
+                        <button
+                            onMouseDown={preventFocusLoss}
+                            onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
+                            className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                            title="Align Right"
+                        >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_right</span>
+                        </button>
                     </div>
 
-                    {/* Main Canvas Area */}
-                    <div className="flex-1 flex overflow-hidden">
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center bg-[#121212]">
-                            <div className="document-canvas relative bg-[#262626] w-full max-w-[850px] min-h-[1100px] p-8 md:p-16 rounded shadow-2xl border border-slate-800/50">
-                                <input
-                                    className="w-full text-4xl font-extrabold border-none focus:ring-0 p-0 bg-transparent text-white placeholder:text-slate-700 outline-none mb-6"
-                                    placeholder="Judul Postingan"
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                />
-                                <div
-                                    ref={editorRef}
-                                    contentEditable
-                                    onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
-                                    onClick={handleEditorClick}
-                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:transition-all [&_img.selected]:ring-2 [&_img.selected]:ring-primary/50"
-                                />
-
-                                {/* Image Editing Overlay - Integrated into Canvas */}
-                                {selectedImage && imageRect && (
-                                    <div
-                                        id="image-edit-overlay"
-                                        className="absolute z-[100] pointer-events-none transition-none"
-                                        style={{
-                                            top: imageRect.top,
-                                            left: imageRect.left,
-                                            width: imageRect.width,
-                                            height: imageRect.height,
-                                        }}
-                                    >
-                                        {/* No external border anymore per user request */}
-
-                                        {/* Delete Button */}
-                                        <button
-                                            onClick={handleDeleteImage}
-                                            className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
-                                            title="Hapus Gambar"
-                                        >
-                                            <span className="material-symbols-outlined text-[18px]">close</span>
-                                        </button>
-
-                                        {/* Resize Handle with larger hit area */}
-                                        <div
-                                            onPointerDown={handleResizeStart}
-                                            className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
-                                            title="Tarik untuk mengubah ukuran"
-                                        >
-                                            <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
-                                                <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
-                                            </div>
-                                        </div>
-
-                                        {/* Size Tooltip */}
-                                        <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
-                                            {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Right Sidebar - Properties */}
-                        <aside className="w-72 bg-[#1e1e1e] border-l border-slate-800 overflow-y-auto flex flex-col">
-                            <div className="p-5 border-b border-slate-800">
-                                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-slate-500 text-[18px]">settings</span>
-                                    Post Settings
-                                </h3>
-                            </div>
-
-                            {/* Publishing */}
-                            <div className="p-5 border-b border-slate-800">
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Post Status</label>
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="text-sm text-slate-400">Status</span>
-                                    <select
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value as any)}
-                                        className="text-xs bg-[#262626] border-slate-700 rounded text-slate-200 outline-none focus:ring-primary"
-                                    >
-                                        <option value="draft">Draft</option>
-                                        <option value="published">Published</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm text-slate-400">Author</span>
-                                    <span className="text-sm font-semibold text-slate-200">Admin</span>
-                                </div>
-                            </div>
-
-                            {/* Project Link */}
-                            <div className="p-5 border-b border-slate-800">
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Project Link</label>
-                                <input
-                                    type="text"
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                    className="w-full text-sm border-slate-700 bg-[#262626] text-slate-200 rounded-lg placeholder:text-slate-600 focus:ring-primary focus:border-primary outline-none p-2"
-                                    placeholder="https://..."
-                                />
-                            </div>
-
-                            {/* Tags */}
-                            <div className="p-5 border-b border-slate-800">
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Tags</label>
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {tags.map(tag => (
-                                        <span key={tag} className="inline-flex items-center gap-1 bg-[#262626] border border-slate-700 px-2.5 py-1 rounded text-xs font-medium text-slate-300">
-                                            {tag}
-                                            <button onClick={() => removeTag(tag)} className="material-symbols-outlined !text-[14px] text-slate-500 hover:text-slate-300">close</button>
-                                        </span>
-                                    ))}
-                                </div>
-                                <input
-                                    type="text"
-                                    className="w-full text-sm border-slate-700 bg-[#262626] text-slate-200 rounded-lg placeholder:text-slate-600 focus:ring-primary focus:border-primary outline-none p-2"
-                                    placeholder="Add tags..."
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            addTag((e.target as HTMLInputElement).value);
-                                            (e.target as HTMLInputElement).value = '';
-                                        }
-                                    }}
-                                />
-                            </div>
-
-                            {/* Featured Image */}
-                            <div className="p-5">
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Featured Image</label>
-                                <div className="aspect-video rounded-lg border-2 border-dashed border-slate-800 bg-[#262626] flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all group overflow-hidden relative">
-                                    {coverImage ? (
-                                        <img src={coverImage} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-slate-700 group-hover:text-slate-500 !text-3xl mb-2 transition-colors">add_photo_alternate</span>
-                                            <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors">Click to upload image</span>
-                                        </>
-                                    )}
-                                    <input
-                                        type="file"
-                                        ref={featuredImageInputRef}
-                                        accept="image/jpeg,image/png,image/webp"
-                                        onChange={handleFeaturedImageUpload}
-                                        className="hidden"
-                                    />
-                                    <div
-                                        onClick={() => {
-                                            setTimeout(() => {
-                                                featuredImageInputRef.current?.click();
-                                            }, 0);
-                                        }}
-                                        className="absolute inset-0 cursor-pointer"
-                                    ></div>
-                                </div>
-                            </div>
-                        </aside>
+                    <div className="flex items-center gap-1 shrink-0 px-2 leading-none">
+                        <input
+                            type="file"
+                            ref={imageInputRef}
+                            id="body-image-upload"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
+                        <button
+                            type="button"
+                            onMouseDown={preventFocusLoss}
+                            onClick={() => {
+                                setTimeout(() => {
+                                    imageInputRef.current?.click();
+                                }, 0);
+                            }}
+                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95 group"
+                            title="Add Image"
+                        >
+                            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">image</span>
+                        </button>
                     </div>
-                </main>
             </div>
 
-        </div>
+            {/* Main Canvas Area */}
+            <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 flex justify-center bg-[#121212]">
+                    <div className="document-canvas relative bg-[#262626] w-full max-w-[850px] min-h-[1100px] p-6 sm:p-8 md:p-16 rounded shadow-2xl border border-slate-800/50">
+                        <input
+                            className="w-full text-2xl sm:text-4xl font-extrabold border-none focus:ring-0 p-0 bg-transparent text-white placeholder:text-slate-700 outline-none mb-4 sm:mb-6"
+                            placeholder="Judul Postingan"
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                        <div
+                            ref={editorRef}
+                            contentEditable
+                            onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
+                            onClick={handleEditorClick}
+                            className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:transition-all [&_img.selected]:ring-2 [&_img.selected]:ring-primary/50"
+                        />
+
+                        {/* Image Editing Overlay - Integrated into Canvas */}
+                        {selectedImage && imageRect && (
+                            <div
+                                id="image-edit-overlay"
+                                className="absolute z-[100] pointer-events-none transition-none"
+                                style={{
+                                    top: imageRect.top,
+                                    left: imageRect.left,
+                                    width: imageRect.width,
+                                    height: imageRect.height,
+                                }}
+                            >
+                                {/* No external border anymore per user request */}
+
+                                {/* Delete Button */}
+                                <button
+                                    onClick={handleDeleteImage}
+                                    className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
+                                    title="Hapus Gambar"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">close</span>
+                                </button>
+
+                                {/* Resize Handle with larger hit area */}
+                                <div
+                                    onPointerDown={handleResizeStart}
+                                    className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
+                                    title="Tarik untuk mengubah ukuran"
+                                >
+                                    <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
+                                        <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                {/* Size Tooltip */}
+                                <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
+                                    {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Sidebar - Properties (Hidden on Mobile) */}
+                <aside className="hidden lg:flex w-72 bg-[#1e1e1e] border-l border-slate-800 overflow-y-auto flex-col">
+                    <div className="p-5 border-b border-slate-800">
+                        <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                            <span className="material-symbols-outlined text-slate-500 text-[18px]">settings</span>
+                            Post Settings
+                        </h3>
+                    </div>
+
+                    {/* Publishing */}
+                    <div className="p-5 border-b border-slate-800">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Post Status</label>
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-sm text-slate-400">Status</span>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value as any)}
+                                className="text-xs bg-[#262626] border-slate-700 rounded text-slate-200 outline-none focus:ring-primary"
+                            >
+                                <option value="draft">Draft</option>
+                                <option value="published">Published</option>
+                            </select>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-slate-400">Author</span>
+                            <span className="text-sm font-semibold text-slate-200">Admin</span>
+                        </div>
+                    </div>
+
+                    {/* Project Link */}
+                    <div className="p-5 border-b border-slate-800">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Project Link</label>
+                        <input
+                            type="text"
+                            value={link}
+                            onChange={(e) => setLink(e.target.value)}
+                            className="w-full text-sm border-slate-700 bg-[#262626] text-slate-200 rounded-lg placeholder:text-slate-600 focus:ring-primary focus:border-primary outline-none p-2"
+                            placeholder="https://..."
+                        />
+                    </div>
+
+                    {/* Tags */}
+                    <div className="p-5 border-b border-slate-800">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Tags</label>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            {tags.map(tag => (
+                                <span key={tag} className="inline-flex items-center gap-1 bg-[#262626] border border-slate-700 px-2.5 py-1 rounded text-xs font-medium text-slate-300">
+                                    {tag}
+                                    <button onClick={() => removeTag(tag)} className="material-symbols-outlined !text-[14px] text-slate-500 hover:text-slate-300">close</button>
+                                </span>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            className="w-full text-sm border-slate-700 bg-[#262626] text-slate-200 rounded-lg placeholder:text-slate-600 focus:ring-primary focus:border-primary outline-none p-2"
+                            placeholder="Add tags..."
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    addTag((e.target as HTMLInputElement).value);
+                                    (e.target as HTMLInputElement).value = '';
+                                }
+                            }}
+                        />
+                    </div>
+
+                    {/* Featured Image */}
+                    <div className="p-5">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Featured Image</label>
+                        <div className="aspect-video rounded-lg border-2 border-dashed border-slate-800 bg-[#262626] flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all group overflow-hidden relative">
+                            {coverImage ? (
+                                <img src={coverImage} className="w-full h-full object-cover" />
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined text-slate-700 group-hover:text-slate-500 !text-3xl mb-2 transition-colors">add_photo_alternate</span>
+                                    <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors">Click to upload image</span>
+                                </>
+                            )}
+                            <input
+                                type="file"
+                                ref={featuredImageInputRef}
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handleFeaturedImageUpload}
+                                className="hidden"
+                            />
+                            <div
+                                onClick={() => {
+                                    setTimeout(() => {
+                                        featuredImageInputRef.current?.click();
+                                    }, 0);
+                                }}
+                                className="absolute inset-0 cursor-pointer"
+                            ></div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+            </div >
+
+        </div >
     );
 }
