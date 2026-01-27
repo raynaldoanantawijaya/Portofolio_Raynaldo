@@ -649,8 +649,10 @@ export default function AdminDashboard() {
 
                                                 <span className="material-symbols-outlined text-primary">description</span>
                                                 <div className="flex-1 overflow-hidden">
-                                                    <p className="text-sm font-medium text-white truncate">File CV Tersimpan</p>
-                                                    <p className="text-xs text-primary truncate">GitHub Repository Asset</p>
+                                                    <p className="text-sm font-medium text-white truncate" title={content.hero.cvFilename || 'File CV Tersimpan'}>
+                                                        {content.hero.cvFilename || 'File CV Tersimpan'}
+                                                    </p>
+                                                    <p className="text-xs text-primary truncate">Siap didownload public</p>
                                                 </div>
                                                 <button
                                                     onClick={handleCVDelete}
