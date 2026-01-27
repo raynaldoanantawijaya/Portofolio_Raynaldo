@@ -11,36 +11,21 @@ try {
 }
 
 const { socialLinks } = content;
-
-// Helper parsing icon
-function parseIcon(iconValue: string) {
-    if (!iconValue) return { iconClass: '', color: '' };
-    const parts = iconValue.split('|');
-    return {
-        iconClass: parts[0] || '',
-        color: parts[1] || ''
-    };
-}
-
-const emailIcon = parseIcon(socialLinks.emailIcon);
-const linkedinIcon = parseIcon(socialLinks.linkedinIcon);
-const instagramIcon = parseIcon(socialLinks.instagramIcon);
-const youtubeIcon = parseIcon(socialLinks.youtubeIcon);
 ---
 
 <footer id="site-footer">
     <div class="social-links" id="social-links-container">
         <a href={`https://mail.google.com/mail/?view=cm&to=${socialLinks.email}`} target="_blank" data-social="email" aria-label="Email">
-            <i class={emailIcon.iconClass} style={emailIcon.color ? `color: ${emailIcon.color}` : ''} id="email-icon"></i>
+            <svg class="social-icon" viewBox="0 0 512 512" width="24" height="24" fill="currentColor"><path d={socialLinks.emailIcon}/></svg>
         </a>
         <a href={`https://www.linkedin.com/in/${socialLinks.linkedin}`} target="_blank" data-social="linkedin" aria-label="LinkedIn">
-            <i class={linkedinIcon.iconClass} style={linkedinIcon.color ? `color: ${linkedinIcon.color}` : ''} id="linkedin-icon"></i>
+            <svg class="social-icon" viewBox="0 0 448 512" width="24" height="24" fill="currentColor"><path d={socialLinks.linkedinIcon}/></svg>
         </a>
         <a href={`https://www.instagram.com/${socialLinks.instagram}`} target="_blank" data-social="instagram" aria-label="Instagram">
-            <i class={instagramIcon.iconClass} style={instagramIcon.color ? `color: ${instagramIcon.color}` : ''} id="instagram-icon"></i>
+            <svg class="social-icon" viewBox="0 0 448 512" width="24" height="24" fill="currentColor"><path d={socialLinks.instagramIcon}/></svg>
         </a>
         <a href={`https://youtube.com/${socialLinks.youtube}`} target="_blank" data-social="youtube" aria-label="YouTube">
-            <i class={youtubeIcon.iconClass} style={youtubeIcon.color ? `color: ${youtubeIcon.color}` : ''} id="youtube-icon"></i>
+            <svg class="social-icon" viewBox="0 0 576 512" width="24" height="24" fill="currentColor"><path d={socialLinks.youtubeIcon}/></svg>
         </a>
     </div>
     <div class="copyright">
