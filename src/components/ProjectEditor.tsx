@@ -474,7 +474,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             <div className="flex items-center gap-1">
                                 <select
                                     onChange={(e) => execCommand('fontName', e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-32 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-36 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
                                 >
                                     <option value="Inter">Inter</option>
                                     <option value="Arial">Arial</option>
@@ -483,7 +483,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 </select>
                                 <select
                                     onChange={(e) => applyFontSize(e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-18 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-24 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
                                 >
                                     <option value="16">16px</option>
                                     <option value="8">8px</option>
