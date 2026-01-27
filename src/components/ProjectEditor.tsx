@@ -224,6 +224,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         e.preventDefault();
         e.stopPropagation();
         setIsResizing(true);
+        document.body.style.cursor = 'nwse-resize';
+        document.body.style.userSelect = 'none';
 
         const startX = e.clientX;
         const startWidth = selectedImage?.offsetWidth || 0;
@@ -240,6 +242,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
         const handleMouseUp = () => {
             setIsResizing(false);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
             if (editorRef.current) {
@@ -601,13 +605,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                         <span className="material-symbols-outlined text-[18px]">close</span>
                     </button>
 
-                    {/* Resize Handle */}
+                    {/* Resize Handle with larger hit area */}
                     <div
                         onMouseDown={handleResizeStart}
-                        className="absolute -bottom-2 -right-2 w-5 h-5 bg-white border-2 border-primary rounded-sm cursor-nwse-resize pointer-events-auto flex items-center justify-center shadow-md z-[101]"
+                        className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle"
                         title="Tarik untuk mengubah ukuran"
                     >
-                        <div className="w-1.5 h-1.5 bg-primary/20 rounded-full"></div>
+                        <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
+                        </div>
                     </div>
 
                     {/* Size Tooltip */}
