@@ -474,12 +474,21 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             <div className="flex items-center gap-1">
                                 <select
                                     onChange={(e) => execCommand('fontName', e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-36 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-40 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-3 transition-all hover:bg-slate-800"
                                 >
-                                    <option value="Inter">Inter</option>
+                                    <option value="Inter">Inter (Default)</option>
+                                    <option value="Poppins">Poppins</option>
                                     <option value="Arial">Arial</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Tahoma">Tahoma</option>
+                                    <option value="Trebuchet MS">Trebuchet MS</option>
+                                    <option value="Georgia">Georgia</option>
                                     <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Garamond">Garamond</option>
+                                    <option value="Palatino">Palatino</option>
                                     <option value="Courier New">Courier New</option>
+                                    <option value="Impact">Impact</option>
+                                    <option value="Comic Sans MS">Comic Sans MS</option>
                                 </select>
                                 <select
                                     onChange={(e) => applyFontSize(e.target.value)}
