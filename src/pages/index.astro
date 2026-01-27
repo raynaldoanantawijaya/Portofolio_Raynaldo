@@ -60,6 +60,8 @@ try {
 
     <Header />
 
+    <main>
+
     <section id="home">
         <div class="home-container">
             <div class="home-left fade-in">
@@ -144,7 +146,7 @@ try {
     <section id="projects">
         <h2 class="section-title">Proyek Saya</h2>
         {/* Pass initial projects to selector */}
-        <ProjectSelector client:only="react" initialProjects={content.projects} />
+        <ProjectSelector client:visible initialProjects={content.projects} />
     </section>
 
     <section id="contact">
@@ -167,6 +169,8 @@ try {
             </form>
         </div>
     </section>
+
+    </main>
 
     <Footer />
 </Layout>

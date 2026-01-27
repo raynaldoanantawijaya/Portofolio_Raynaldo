@@ -28,7 +28,7 @@ export default function ProjectSelector({ initialProjects }: ProjectSelectorProp
                 <div key={project.id} className="project-card fade-in">
                     <div className="project-card-image">
                         {project.coverImage ? (
-                            <img src={project.coverImage} alt={project.title} />
+                            <img src={project.coverImage} alt={project.title} loading="lazy" />
                         ) : (
                             <div className="project-placeholder">
                                 <span>No Image</span>

@@ -30,16 +30,16 @@ const youtubeIcon = parseIcon(socialLinks.youtubeIcon);
 
 <footer id="site-footer">
     <div class="social-links" id="social-links-container">
-        <a href={`https://mail.google.com/mail/?view=cm&to=${socialLinks.email}`} target="_blank" data-social="email">
+        <a href={`https://mail.google.com/mail/?view=cm&to=${socialLinks.email}`} target="_blank" data-social="email" aria-label="Email">
             <i class={emailIcon.iconClass} style={emailIcon.color ? `color: ${emailIcon.color}` : ''} id="email-icon"></i>
         </a>
-        <a href={`https://www.linkedin.com/in/${socialLinks.linkedin}`} target="_blank" data-social="linkedin">
+        <a href={`https://www.linkedin.com/in/${socialLinks.linkedin}`} target="_blank" data-social="linkedin" aria-label="LinkedIn">
             <i class={linkedinIcon.iconClass} style={linkedinIcon.color ? `color: ${linkedinIcon.color}` : ''} id="linkedin-icon"></i>
         </a>
-        <a href={`https://www.instagram.com/${socialLinks.instagram}`} target="_blank" data-social="instagram">
+        <a href={`https://www.instagram.com/${socialLinks.instagram}`} target="_blank" data-social="instagram" aria-label="Instagram">
             <i class={instagramIcon.iconClass} style={instagramIcon.color ? `color: ${instagramIcon.color}` : ''} id="instagram-icon"></i>
         </a>
-        <a href={`https://youtube.com/${socialLinks.youtube}`} target="_blank" data-social="youtube">
+        <a href={`https://youtube.com/${socialLinks.youtube}`} target="_blank" data-social="youtube" aria-label="YouTube">
             <i class={youtubeIcon.iconClass} style={youtubeIcon.color ? `color: ${youtubeIcon.color}` : ''} id="youtube-icon"></i>
         </a>
     </div>
