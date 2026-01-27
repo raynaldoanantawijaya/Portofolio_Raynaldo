@@ -684,14 +684,21 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
                 {/* Right Sidebar - Properties (Desktop: Fixed, Mobile: Drawer) */}
                 <aside className={`
-                    fixed inset-y-0 right-0 z-40 w-72 bg-[#1e1e1e] border-l border-slate-800 flex flex-col transition-transform duration-300 transform lg:static lg:transform-none lg:flex
-                    ${isMobileMenuOpen ? 'translate-x-0 pt-16 lg:pt-0' : 'translate-x-full lg:translate-x-0'}
+                    fixed inset-y-0 right-0 z-[70] w-72 bg-[#1e1e1e] border-l border-slate-800 flex flex-col transition-transform duration-300 transform lg:static lg:transform-none lg:flex
+                    ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
                 `}>
-                    <div className="p-5 border-b border-slate-800">
+                    <div className="h-14 flex items-center justify-between px-5 border-b border-slate-800 bg-[#1e1e1e]">
                         <h3 className="font-bold text-sm text-white flex items-center gap-2">
                             <span className="material-symbols-outlined text-slate-500 text-[18px]">settings</span>
                             Post Settings
                         </h3>
+                        {/* Close Button - Mobile Only */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="lg:hidden text-slate-400 hover:text-white transition-colors"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
                     </div>
 
                     {/* Publishing */}
