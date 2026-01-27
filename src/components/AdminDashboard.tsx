@@ -124,6 +124,20 @@ export default function AdminDashboard() {
     const [isSaving, setIsSaving] = useState(false);
     const cvInputRef = React.useRef<HTMLInputElement>(null);
 
+    // UI Animations State
+    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+    const [uploadStats, setUploadStats] = useState<string>('');
+    const [deleteCountdown, setDeleteCountdown] = useState<number | null>(null);
+
+    const formatBytes = (bytes: number, decimals = 2) => {
+        if (!+bytes) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    };
+
     useEffect(() => {
         const load = async () => {
             const data = await getContentAsync();
@@ -245,41 +259,65 @@ export default function AdminDashboard() {
                 return;
             }
 
+            const fileSizeFormatted = formatBytes(file.size);
+            setUploadStats(fileSizeFormatted);
+            setUploadProgress(0); // Start progress
+
             // Convert to Base64
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 const base64File = reader.result as string;
 
-                try {
-                    // Upload to GitHub Repo via API
-                    const response = await fetch('/api/github-cv', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'upload', file: base64File })
-                    });
+                // Use XHR for accurate upload progress tracking
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/github-cv', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
 
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Upload failed');
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = (event.loaded / event.total) * 100;
+                        setUploadProgress(Math.round(percentComplete));
+                    }
+                };
 
-                    // Success
-                    if (!content) return;
-                    setContent({
-                        ...content,
-                        hero: {
-                            ...content.hero,
-                            cvFile: '/assets/cv.pdf' // Fixed path
-                        }
-                    });
-                    alert('CV berhasil diupload ke GitHub! Perubahan akan muncul dalam 1-2 menit setelah Vercel selesai build ulang.');
-                } catch (error: any) {
-                    console.error('Upload error:', error);
-                    alert(`Gagal mengupload CV: ${error.message}`);
-                }
+                xhr.onload = async () => {
+                    if (xhr.status === 200) {
+                        setUploadProgress(100);
+                        setTimeout(() => {
+                            if (content) {
+                                setContent({
+                                    ...content,
+                                    hero: {
+                                        ...content.hero,
+                                        cvFile: '/assets/cv.pdf'
+                                    }
+                                });
+                            }
+                            setUploadProgress(null);
+                            setUploadStats('');
+                            alert('CV berhasil diupload! Website akan update dalam 1-2 menit.');
+                        }, 500);
+                    } else {
+                        const data = JSON.parse(xhr.responseText);
+                        setUploadProgress(null);
+                        console.error('Upload Error:', data);
+                        alert(`Gagal upload: ${data.error || 'Unknown error'}`);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    setUploadProgress(null);
+                    alert('Gagal upload: Network Error');
+                };
+
+                xhr.send(JSON.stringify({ action: 'upload', file: base64File }));
             };
+
             reader.onerror = (error) => {
+                setUploadProgress(null);
                 console.error('File reading error:', error);
-                alert('Gagal membaca file.');
+                alert('Gagal membaca file local.');
             };
         }
     };
@@ -287,7 +325,20 @@ export default function AdminDashboard() {
     const handleCVDelete = async () => {
         if (!content?.hero.cvFile) return;
 
-        if (!confirm('Apakah Anda yakin ingin menghapus CV ini dari Repository? Ini akan mentrigger build ulang.')) return;
+        if (!confirm('Hapus CV? Ini akan memicu build ulang.')) return;
+
+        setDeleteCountdown(30); // Start 30s timer
+
+        // Start Timer Interval
+        const timerId = setInterval(() => {
+            setDeleteCountdown(prev => {
+                if (prev === null || prev <= 1) {
+                    clearInterval(timerId);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
 
         try {
             const response = await fetch('/api/github-cv', {
@@ -299,15 +350,22 @@ export default function AdminDashboard() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Delete failed');
 
-            setContent({
-                ...content,
-                hero: {
-                    ...content.hero,
-                    cvFile: ''
-                }
-            });
-            alert('CV berhasil dihapus dari GitHub! Tunggu 1-2 menit untuk update.');
+            // Wait until timer finishes to handle UI
+            setTimeout(() => {
+                setDeleteCountdown(null);
+                setContent({
+                    ...content,
+                    hero: {
+                        ...content.hero,
+                        cvFile: ''
+                    }
+                });
+                alert('CV Dihapus. Mohon tunggu build selesai (1-2 menit).');
+            }, 30000);
+
         } catch (error: any) {
+            clearInterval(timerId);
+            setDeleteCountdown(null);
             console.error('Delete error details:', error);
             alert(`Gagal menghapus CV: ${error.message || 'Unknown error'}`);
         }
@@ -533,20 +591,45 @@ export default function AdminDashboard() {
                                                     <span className="material-symbols-outlined">upload_file</span>
                                                     <span className="text-sm font-medium">Pilih File CV</span>
                                                 </button>
+
+                                                {/* Upload Progress UI */}
+                                                {uploadProgress !== null && (
+                                                    <div className="mt-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                        <div className="flex justify-between text-xs text-slate-400 font-mono">
+                                                            <span>Uploading... {uploadStats}</span>
+                                                            <span>{uploadProgress}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700">
+                                                            <div
+                                                                className="bg-primary h-full transition-all duration-300 ease-out shadow-[0_0_10px_rgba(var(--color-primary),0.5)]"
+                                                                style={{ width: `${uploadProgress}%` }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
                                         {content.hero.cvFile ? (
-                                            <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                                            <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20 relative overflow-hidden">
+
+                                                {/* Delete Countdown Overlay */}
+                                                {deleteCountdown !== null && (
+                                                    <div className="absolute inset-0 bg-red-900/95 z-20 flex flex-col items-center justify-center text-white backdrop-blur-sm px-4 text-center animate-in fade-in duration-200">
+                                                        <div className="font-bold text-2xl mb-1 font-mono">{deleteCountdown}s</div>
+                                                        <p className="text-[10px] uppercase tracking-wider font-semibold">Menghapus & Build Ulang...</p>
+                                                    </div>
+                                                )}
+
                                                 <span className="material-symbols-outlined text-primary">description</span>
                                                 <div className="flex-1 overflow-hidden">
                                                     <p className="text-sm font-medium text-white truncate">File CV Tersimpan</p>
-                                                    <p className="text-xs text-primary truncate">Siap didownload</p>
+                                                    <p className="text-xs text-primary truncate">GitHub Repository Asset</p>
                                                 </div>
                                                 <button
                                                     onClick={handleCVDelete}
-                                                    className="text-slate-400 hover:text-red-500 transition-colors"
-                                                    title="Hapus File & Hapus dari Cloudinary"
+                                                    className="text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-red-500/10 rounded-full"
+                                                    title="Hapus File"
                                                 >
                                                     <span className="material-symbols-outlined">delete</span>
                                                 </button>
