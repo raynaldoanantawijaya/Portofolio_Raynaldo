@@ -18,6 +18,34 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const editorRef = useRef<HTMLDivElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const colorInputRef = useRef<HTMLInputElement>(null);
+    const [activeCommands, setActiveCommands] = useState<Record<string, boolean>>({});
+
+    // Update active state of formatting commands
+    const updateActiveCommands = () => {
+        setActiveCommands({
+            bold: document.queryCommandState('bold'),
+            italic: document.queryCommandState('italic'),
+            underline: document.queryCommandState('underline'),
+            strikeThrough: document.queryCommandState('strikeThrough'),
+            justifyLeft: document.queryCommandState('justifyLeft'),
+            justifyCenter: document.queryCommandState('justifyCenter'),
+            justifyRight: document.queryCommandState('justifyRight'),
+            justifyFull: document.queryCommandState('justifyFull'),
+            insertUnorderedList: document.queryCommandState('insertUnorderedList'),
+            insertOrderedList: document.queryCommandState('insertOrderedList'),
+        });
+    };
+
+    // Listen for selection changes
+    useEffect(() => {
+        const handler = () => {
+            if (document.activeElement === editorRef.current) {
+                updateActiveCommands();
+            }
+        };
+        document.addEventListener('selectionchange', handler);
+        return () => document.removeEventListener('selectionchange', handler);
+    }, []);
 
     // Initial content load
     useEffect(() => {
@@ -218,16 +246,36 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     </select>
                                 </div>
                                 <div className="flex items-center gap-0.5">
-                                    <button onMouseDown={preventFocusLoss} onClick={() => execCommand('bold')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Bold">
+                                    <button
+                                        onMouseDown={preventFocusLoss}
+                                        onClick={() => { execCommand('bold'); updateActiveCommands(); }}
+                                        className={`p-1 rounded transition-colors ${activeCommands.bold ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        title="Bold"
+                                    >
                                         <span className="material-symbols-outlined font-bold text-[18px]">format_bold</span>
                                     </button>
-                                    <button onMouseDown={preventFocusLoss} onClick={() => execCommand('italic')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Italic">
+                                    <button
+                                        onMouseDown={preventFocusLoss}
+                                        onClick={() => { execCommand('italic'); updateActiveCommands(); }}
+                                        className={`p-1 rounded transition-colors ${activeCommands.italic ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        title="Italic"
+                                    >
                                         <span className="material-symbols-outlined text-[18px]">format_italic</span>
                                     </button>
-                                    <button onMouseDown={preventFocusLoss} onClick={() => execCommand('underline')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Underline">
+                                    <button
+                                        onMouseDown={preventFocusLoss}
+                                        onClick={() => { execCommand('underline'); updateActiveCommands(); }}
+                                        className={`p-1 rounded transition-colors ${activeCommands.underline ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        title="Underline"
+                                    >
                                         <span className="material-symbols-outlined text-[18px]">format_underlined</span>
                                     </button>
-                                    <button onMouseDown={preventFocusLoss} onClick={() => execCommand('strikeThrough')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Strikethrough">
+                                    <button
+                                        onMouseDown={preventFocusLoss}
+                                        onClick={() => { execCommand('strikeThrough'); updateActiveCommands(); }}
+                                        className={`p-1 rounded transition-colors ${activeCommands.strikeThrough ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        title="Strikethrough"
+                                    >
                                         <span className="material-symbols-outlined text-[18px]">format_strikethrough</span>
                                     </button>
                                     <div className="w-px h-5 bg-slate-800 mx-1"></div>
@@ -245,24 +293,54 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
                         <div className="flex flex-col gap-1 border-r border-slate-700 pr-2 mr-2">
                             <div className="flex items-center gap-0.5">
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('insertUnorderedList')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Bullets">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('insertUnorderedList'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.insertUnorderedList ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Bullets"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
                                 </button>
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('insertOrderedList')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Numbering">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('insertOrderedList'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.insertOrderedList ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Numbering"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
                                 </button>
                             </div>
                             <div className="flex items-center gap-0.5">
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('justifyLeft')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Align Left">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('justifyLeft'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyLeft ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Align Left"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_align_left</span>
                                 </button>
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('justifyCenter')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Align Center">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('justifyCenter'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyCenter ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Align Center"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_align_center</span>
                                 </button>
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('justifyRight')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Align Right">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyRight ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Align Right"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_align_right</span>
                                 </button>
-                                <button onMouseDown={preventFocusLoss} onClick={() => execCommand('justifyFull')} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors" title="Justify">
+                                <button
+                                    onMouseDown={preventFocusLoss}
+                                    onClick={() => { execCommand('justifyFull'); updateActiveCommands(); }}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyFull ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    title="Justify"
+                                >
                                     <span className="material-symbols-outlined text-[18px]">format_align_justify</span>
                                 </button>
                             </div>
@@ -276,16 +354,17 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 onChange={handleImageUpload}
                                 className="hidden"
                             />
-                            <button onMouseDown={preventFocusLoss} onClick={() => imageInputRef.current?.click()} className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px]">
-                                <span className="material-symbols-outlined text-slate-400 text-[20px]">image</span>
-                                <span className="text-[10px] font-medium mt-0.5 text-slate-500">Image</span>
-                            </button>
-                            <button onMouseDown={preventFocusLoss} onClick={() => {
-                                const url = prompt('Link URL:');
-                                if (url) execCommand('createLink', url);
-                            }} className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px]">
-                                <span className="material-symbols-outlined text-slate-400 text-[20px]">link</span>
-                                <span className="text-[10px] font-medium mt-0.5 text-slate-500">Link</span>
+                            <button
+                                type="button"
+                                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onClick={() => {
+                                    console.log('Image button clicked');
+                                    imageInputRef.current?.click();
+                                }}
+                                className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px] group"
+                            >
+                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-[20px]">image</span>
+                                <span className="text-[10px] font-medium mt-0.5 text-slate-500 group-hover:text-slate-400">Image</span>
                             </button>
                         </div>
                     </div>
