@@ -423,129 +423,142 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     </div>
 
                     {/* Ribbon Toolbar */}
-                    <div className="bg-[#1e1e1e] border-y border-slate-800 px-4 py-2 flex items-center flex-wrap gap-1 overflow-x-auto">
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 mr-2">
-                            <button onMouseDown={preventFocusLoss} onClick={handlePaste} className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px]">
-                                <span className="material-symbols-outlined text-primary text-[20px]">content_paste</span>
-                                <span className="text-[10px] font-medium mt-0.5 text-slate-400">Paste</span>
+                    <div className="bg-[#1e1e1e] border-y border-slate-800 px-4 py-2 flex items-center flex-wrap gap-2 overflow-x-auto selection:bg-primary/30">
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={handlePaste}
+                                className="w-9 h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95"
+                                title="Paste (Ctrl+V)"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">content_paste</span>
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2 mr-2">
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-1">
-                                    <select onChange={(e) => execCommand('fontName', e.target.value)} className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded h-7 w-28 py-0 focus:ring-primary outline-none px-1">
-                                        <option value="Inter">Inter</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Courier New">Courier New</option>
-                                    </select>
-                                    <select onChange={(e) => execCommand('fontSize', e.target.value)} className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded h-7 w-14 py-0 focus:ring-primary outline-none px-1">
-                                        <option value="3">Normal</option>
-                                        <option value="1">Small</option>
-                                        <option value="4">Large</option>
-                                        <option value="5">Huge</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center gap-0.5">
-                                    <button
-                                        onMouseDown={preventFocusLoss}
-                                        onClick={() => { execCommand('bold'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.bold ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                        title="Bold"
-                                    >
-                                        <span className="material-symbols-outlined font-bold text-[18px]">format_bold</span>
-                                    </button>
-                                    <button
-                                        onMouseDown={preventFocusLoss}
-                                        onClick={() => { execCommand('italic'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.italic ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                        title="Italic"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">format_italic</span>
-                                    </button>
-                                    <button
-                                        onMouseDown={preventFocusLoss}
-                                        onClick={() => { execCommand('underline'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.underline ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                        title="Underline"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">format_underlined</span>
-                                    </button>
-                                    <button
-                                        onMouseDown={preventFocusLoss}
-                                        onClick={() => { execCommand('strikeThrough'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.strikeThrough ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                        title="Strikethrough"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">format_strikethrough</span>
-                                    </button>
-                                    <div className="w-px h-5 bg-slate-800 mx-1"></div>
-                                    <input
-                                        type="color"
-                                        ref={colorInputRef}
-                                        onMouseDown={saveSelection}
-                                        onChange={(e) => applyColor(e.target.value)}
-                                        className="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent"
-                                        title="Text Color"
-                                    />
-                                </div>
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                            <div className="flex items-center gap-1">
+                                <select
+                                    onChange={(e) => execCommand('fontName', e.target.value)}
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-32 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
+                                >
+                                    <option value="Inter">Inter</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Courier New">Courier New</option>
+                                </select>
+                                <select
+                                    onChange={(e) => execCommand('fontSize', e.target.value)}
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-16 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
+                                >
+                                    <option value="3">16px</option>
+                                    <option value="1">12px</option>
+                                    <option value="2">14px</option>
+                                    <option value="4">18px</option>
+                                    <option value="5">24px</option>
+                                    <option value="6">32px</option>
+                                </select>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-1 border-r border-slate-700 pr-2 mr-2">
-                            <div className="flex items-center gap-0.5">
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('insertUnorderedList'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.insertUnorderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Bullets"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
-                                </button>
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('insertOrderedList'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.insertOrderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Numbering"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
-                                </button>
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('bold'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.bold ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Bold"
+                            >
+                                <span className="material-symbols-outlined font-bold text-[18px]">format_bold</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('italic'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.italic ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Italic"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_italic</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('underline'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.underline ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Underline"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_underlined</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('strikeThrough'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.strikeThrough ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Strikethrough"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_strikethrough</span>
+                            </button>
+                            <div className="w-px h-6 bg-slate-800 mx-1"></div>
+                            <div className="relative w-9 h-9 flex items-center justify-center rounded-md hover:bg-slate-800 transition-all">
+                                <span className="material-symbols-outlined text-[18px] text-slate-400">palette</span>
+                                <input
+                                    type="color"
+                                    ref={colorInputRef}
+                                    onMouseDown={saveSelection}
+                                    onChange={(e) => applyColor(e.target.value)}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    title="Text Color"
+                                />
                             </div>
-                            <div className="flex items-center gap-0.5">
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('justifyLeft'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyLeft ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Align Left"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_align_left</span>
-                                </button>
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('justifyCenter'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyCenter ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Align Center"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_align_center</span>
-                                </button>
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Align Right"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_align_right</span>
-                                </button>
-                                <button
-                                    onMouseDown={preventFocusLoss}
-                                    onClick={() => { execCommand('justifyFull'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyFull ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                                    title="Justify"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">format_align_justify</span>
-                                </button>
-                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('insertUnorderedList'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertUnorderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Bullets"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('insertOrderedList'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.insertOrderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Numbering"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-1 border-r border-slate-700 pr-2">
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('justifyLeft'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyLeft ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Align Left"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_align_left</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('justifyCenter'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyCenter ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Align Center"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_align_center</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Align Right"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_align_right</span>
+                            </button>
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('justifyFull'); updateActiveCommands(); }}
+                                className={`w-9 h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyFull ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Justify"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">format_align_justify</span>
+                            </button>
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -561,16 +574,14 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 type="button"
                                 onMouseDown={preventFocusLoss}
                                 onClick={() => {
-                                    // Use setTimeout to decouple system dialog from React click event
                                     setTimeout(() => {
                                         imageInputRef.current?.click();
                                     }, 0);
                                 }}
-                                className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px] group"
+                                className="w-9 h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95 group"
                                 title="Add Image"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-[20px]">image</span>
-                                <span className="text-[10px] font-medium mt-0.5 text-slate-500 group-hover:text-slate-400">Image</span>
+                                <span className="material-symbols-outlined text-[20px]">image</span>
                             </button>
                         </div>
                     </div>
