@@ -148,24 +148,26 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     };
 
     const applyFontSize = (size: string) => {
-        // execCommand 'fontSize' only supports 1-7. To use pixels, we apply 7 as a marker
-        // and then find that element and set its style.fontSize
+        // More robust strategy: Use a unique color as a marker
+        // Standard fontSize 7 marker often fails if text already has custom styles
+        const markerColor = 'rgb(0, 0, 1)'; // Rare color for marking (invisible)
+
         document.execCommand('styleWithCSS', false, 'true');
-        document.execCommand('fontSize', false, '7');
+        document.execCommand('foreColor', false, markerColor);
 
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0) {
-            const fontElements = editorRef.current?.querySelectorAll('span[style*="font-size: xx-large"]');
-            fontElements?.forEach(el => {
+            // Find elements with our marker color and replace with font size
+            const markedElements = editorRef.current?.querySelectorAll(`span[style*="color: ${markerColor}"]`);
+            markedElements?.forEach(el => {
                 const htmlEl = el as HTMLElement;
-                if (htmlEl.style.fontSize === 'xx-large') {
-                    htmlEl.style.fontSize = `${size}px`;
-                }
+                htmlEl.style.color = ''; // Reset color
+                htmlEl.style.fontSize = `${size}px`;
             });
 
-            // Also check for <font size="7"> in case styleWithCSS didn't work as expected
-            const legacyFontElements = editorRef.current?.querySelectorAll('font[size="7"]');
-            legacyFontElements?.forEach(el => {
+            // Handle cases where browser uses <font color="#000001">
+            const legacyMarked = editorRef.current?.querySelectorAll('font[color="#000001"]');
+            legacyMarked?.forEach(el => {
                 const fontEl = el as HTMLElement;
                 const span = document.createElement('span');
                 span.style.fontSize = `${size}px`;
