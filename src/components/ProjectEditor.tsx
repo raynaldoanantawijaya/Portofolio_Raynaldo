@@ -292,8 +292,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         let lastMoveEvent: PointerEvent | null = null;
         let ticking = false;
 
+        // Cache canvas info for performance
+        const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
+        let canvasRect = canvas?.getBoundingClientRect();
+        const style = window.getComputedStyle(canvas);
+        const borderTop = parseFloat(style.borderTopWidth) || 0;
+        const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+
         const updateResize = () => {
-            if (!selectedImage || !lastMoveEvent) {
+            if (!selectedImage || !lastMoveEvent || !canvas) {
                 ticking = false;
                 return;
             }
@@ -301,16 +308,26 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             const deltaX = lastMoveEvent.clientX - startX;
             const newWidth = Math.max(50, startWidth + deltaX);
 
-            // Update image directly for instant feedback
+            // 1. Update image directly for instant feedback
             selectedImage.style.width = `${newWidth}px`;
             selectedImage.style.height = 'auto';
 
-            // Calculate new relative rect
-            const rect = getRelativeRect(selectedImage);
-            if (rect) {
-                // Update React state AND direct DOM for the overlay
-                setImageRect(rect);
-                syncOverlayPosition(selectedImage, rect);
+            // 2. Direct DOM update for overlay (bypassing React state for zero lag)
+            const imgRect = selectedImage.getBoundingClientRect();
+            const top = imgRect.top - canvasRect.top - borderTop + canvas.scrollTop;
+            const left = imgRect.left - canvasRect.left - borderLeft + canvas.scrollLeft;
+
+            const overlay = document.getElementById('image-edit-overlay');
+            if (overlay) {
+                overlay.style.top = `${top}px`;
+                overlay.style.left = `${left}px`;
+                overlay.style.width = `${imgRect.width}px`;
+                overlay.style.height = `${imgRect.height}px`;
+
+                const tooltip = overlay.querySelector('.size-tooltip');
+                if (tooltip) {
+                    tooltip.textContent = `${Math.round(imgRect.width)}px × ${Math.round(imgRect.height)}px`;
+                }
             }
 
             ticking = false;
@@ -337,10 +354,10 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             target.removeEventListener('pointerup', handlePointerUp);
             target.removeEventListener('pointercancel', handlePointerUp);
 
-            if (editorRef.current) {
+            if (editorRef.current && selectedImage) {
                 setContent(editorRef.current.innerHTML);
-                // Final state sync
-                const rect = getRelativeRect(selectedImage!);
+                // Final state sync for React (one batch update)
+                const rect = getRelativeRect(selectedImage);
                 if (rect) setImageRect(rect);
             }
         };
