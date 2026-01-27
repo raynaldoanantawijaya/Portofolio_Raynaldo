@@ -128,6 +128,7 @@ export default function AdminDashboard() {
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [uploadStats, setUploadStats] = useState<string>('');
     const [deleteCountdown, setDeleteCountdown] = useState<number | null>(null);
+    const [isDirty, setIsDirty] = useState(false); // Track unsaved changes
 
     const formatBytes = (bytes: number, decimals = 2) => {
         if (!+bytes) return '0 Bytes';
@@ -152,6 +153,7 @@ export default function AdminDashboard() {
         const success = await saveContentAsync(content);
         if (success) {
             alert('Perubahan berhasil disimpan ke Firestore!');
+            setIsDirty(false); // Reset dirty state
         } else {
             alert('Gagal menyimpan perubahan. Cek koneksi internet atau izin.');
         }
@@ -171,6 +173,7 @@ export default function AdminDashboard() {
                     }
                 }
             });
+            setIsDirty(true);
         } else if (typeof content[section] === 'object' && !Array.isArray(content[section])) {
             setContent({
                 ...content,
@@ -179,6 +182,7 @@ export default function AdminDashboard() {
                     [key]: value
                 }
             });
+            setIsDirty(true);
         }
     };
 
@@ -194,6 +198,7 @@ export default function AdminDashboard() {
 
         const newContent = { ...content, projects: finalProjects };
         setContent(newContent);
+        setIsDirty(true);
         setEditingProject(null); // Close editor
         alert('Project diperbarui! Jangan lupa klik "Simpan Perubahan" di sidebar untuk menyimpan ke server.');
     };
@@ -238,17 +243,20 @@ export default function AdminDashboard() {
         const newSkills = [...content.skills];
         newSkills[index] = { ...newSkills[index], [field]: value };
         setContent({ ...content, skills: newSkills });
+        setIsDirty(true);
     };
 
     const addSkill = () => {
         if (!content) return;
         const newSkill: Skill = { title: 'New Skill', desc: 'Description', icon: ICON_OPTIONS[0].url };
         setContent({ ...content, skills: [...content.skills, newSkill] });
+        setIsDirty(true);
     };
 
     const removeSkill = (index: number) => {
         if (!content) return;
         setContent({ ...content, skills: content.skills.filter((_, i) => i !== index) });
+        setIsDirty(true);
     };
 
     const handleCVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -449,24 +457,12 @@ export default function AdminDashboard() {
 
                 <div className="p-4 border-t border-slate-800 space-y-2">
                     <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-semibold transition-all shadow-sm ${isSaving ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary/90 shadow-primary/20'}`}
-                    >
-                        {isSaving ? (
-                            <>
-                                <i className="fas fa-spinner fa-spin"></i>
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-symbols-outlined text-[18px]">save</span>
-                                Simpan (Bawah)
-                            </>
-                        )}
-                    </button>
-                    <button
                         onClick={async () => {
+                            if (isDirty) {
+                                if (!confirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin keluar? Perubahan akan hilang.')) {
+                                    return;
+                                }
+                            }
                             const { logoutAdmin } = await import('../lib/authService');
                             await logoutAdmin();
                         }}
