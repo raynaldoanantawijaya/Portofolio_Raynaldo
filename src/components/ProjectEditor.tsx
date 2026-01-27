@@ -42,9 +42,22 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
     // Listen for selection changes and scroll
     useEffect(() => {
+        let rafId: number;
         const updateOverlay = () => {
-            if (selectedImage) {
-                setImageRect(selectedImage.getBoundingClientRect());
+            if (selectedImage && selectedImage.parentElement) {
+                rafId = requestAnimationFrame(() => {
+                    const newRect = selectedImage.getBoundingClientRect();
+                    setImageRect(newRect);
+
+                    // Direct DOM update for overlay if it exists
+                    const overlay = document.getElementById('image-edit-overlay');
+                    if (overlay) {
+                        overlay.style.top = `${newRect.top}px`;
+                        overlay.style.left = `${newRect.left}px`;
+                        overlay.style.width = `${newRect.width}px`;
+                        overlay.style.height = `${newRect.height}px`;
+                    }
+                });
             }
         };
 
@@ -72,14 +85,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         document.addEventListener('selectionchange', handler);
         window.addEventListener('resize', updateOverlay);
 
-        // Listen for scroll in the editor container
-        const scrollContainer = editorRef.current?.parentElement;
-        scrollContainer?.addEventListener('scroll', updateOverlay);
+        // Correct scroll container is the grandparent of the contentEditable
+        const scrollContainer = editorRef.current?.parentElement?.parentElement;
+        scrollContainer?.addEventListener('scroll', updateOverlay, { passive: true });
 
         return () => {
             document.removeEventListener('selectionchange', handler);
             window.removeEventListener('resize', updateOverlay);
             scrollContainer?.removeEventListener('scroll', updateOverlay);
+            if (rafId) cancelAnimationFrame(rafId);
         };
     }, [selectedImage, isResizing]);
 
