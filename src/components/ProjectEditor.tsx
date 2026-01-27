@@ -220,39 +220,76 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         }
     };
 
-    const handleResizeStart = (e: React.MouseEvent) => {
+    const handleResizeStart = (e: React.PointerEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        // Capture the pointer to handle movement even outside the element
+        const target = e.currentTarget as HTMLElement;
+        target.setPointerCapture(e.pointerId);
+
         setIsResizing(true);
         document.body.style.cursor = 'nwse-resize';
         document.body.style.userSelect = 'none';
+        document.body.style.touchAction = 'none'; // Prevent scrolling while resizing
 
         const startX = e.clientX;
         const startWidth = selectedImage?.offsetWidth || 0;
 
-        const handleMouseMove = (moveEvent: MouseEvent) => {
+        // Find the overlay and border elements to update them directly for zero lag
+        const overlay = document.getElementById('image-edit-overlay');
+        const overlayBorder = overlay?.querySelector('.overlay-border') as HTMLElement;
+
+        const handlePointerMove = (moveEvent: PointerEvent) => {
             if (selectedImage) {
                 const deltaX = moveEvent.clientX - startX;
                 const newWidth = Math.max(50, startWidth + deltaX);
-                selectedImage.style.width = `${newWidth}px`;
-                selectedImage.style.height = 'auto';
-                setImageRect(selectedImage.getBoundingClientRect());
+
+                // Update DOM directly for instant feedback (Zero Lag)
+                requestAnimationFrame(() => {
+                    selectedImage.style.width = `${newWidth}px`;
+                    selectedImage.style.height = 'auto';
+
+                    // Sync overlay position immediately
+                    const newRect = selectedImage.getBoundingClientRect();
+                    if (overlay) {
+                        overlay.style.width = `${newRect.width}px`;
+                        overlay.style.height = `${newRect.height}px`;
+                        overlay.style.top = `${newRect.top}px`;
+                        overlay.style.left = `${newRect.left}px`;
+
+                        const tooltip = overlay.querySelector('.size-tooltip');
+                        if (tooltip) {
+                            tooltip.textContent = `${Math.round(newRect.width)}px × ${Math.round(newRect.height)}px`;
+                        }
+                    }
+                });
             }
         };
 
-        const handleMouseUp = () => {
+        const handlePointerUp = (upEvent: PointerEvent) => {
+            target.releasePointerCapture(upEvent.pointerId);
             setIsResizing(false);
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.touchAction = '';
+
+            target.removeEventListener('pointermove', handlePointerMove);
+            target.removeEventListener('pointerup', handlePointerUp);
+            target.removeEventListener('pointercancel', handlePointerUp);
+
             if (editorRef.current) {
                 setContent(editorRef.current.innerHTML);
+                // Final state sync for React
+                if (selectedImage) {
+                    setImageRect(selectedImage.getBoundingClientRect());
+                }
             }
         };
 
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
+        target.addEventListener('pointermove', handlePointerMove);
+        target.addEventListener('pointerup', handlePointerUp);
+        target.addEventListener('pointercancel', handlePointerUp);
     };
 
     return (
@@ -586,7 +623,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             {/* Image Editing Overlay */}
             {selectedImage && imageRect && (
                 <div
-                    className="fixed z-[100] pointer-events-none"
+                    id="image-edit-overlay"
+                    className="fixed z-[100] pointer-events-none transition-none"
                     style={{
                         top: imageRect.top,
                         left: imageRect.left,
@@ -594,7 +632,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                         height: imageRect.height,
                     }}
                 >
-                    <div className="absolute inset-0 border-2 border-primary shadow-[0_0_10px_rgba(255,107,107,0.3)] pointer-events-none"></div>
+                    <div className="overlay-border absolute inset-0 border-2 border-primary shadow-[0_0_10px_rgba(255,107,107,0.3)] pointer-events-none"></div>
 
                     {/* Delete Button */}
                     <button
@@ -607,8 +645,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
                     {/* Resize Handle with larger hit area */}
                     <div
-                        onMouseDown={handleResizeStart}
-                        className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle"
+                        onPointerDown={handleResizeStart}
+                        className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
                         title="Tarik untuk mengubah ukuran"
                     >
                         <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
@@ -617,7 +655,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     </div>
 
                     {/* Size Tooltip */}
-                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
+                    <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
                         {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
                     </div>
                 </div>
