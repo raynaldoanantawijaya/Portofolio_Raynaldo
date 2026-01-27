@@ -320,6 +320,7 @@ export default function AdminDashboard() {
                                         cvFile: '/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf'
                                     }
                                 });
+                                setIsDirty(true);
                             }
                             setUploadProgress(null);
                             setUploadStats('');
