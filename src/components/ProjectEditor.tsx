@@ -420,22 +420,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     </nav>
                 </div>
                 <div className="flex items-center gap-4">
-                    {/* Hamburger Menu - Visible on Mobile */}
-                    <button
+                    {/* Hamburger Menu - Custom 3-Bar Style per User Request */}
+                    <div
+                        className="lg:hidden flex flex-col justify-between w-6 h-4 cursor-pointer z-[60]"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="lg:hidden text-slate-400 hover:text-white transition-colors p-1"
-                        aria-label="Toggle menu"
                     >
-                        {isMobileMenuOpen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
-                                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-                            </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
-                                <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
-                            </svg>
-                        )}
-                    </button>
+                        <span className={`w-full h-0.5 bg-white rounded transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                        <span className={`w-full h-0.5 bg-white rounded transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
+                        <span className={`w-full h-0.5 bg-white rounded transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                    </div>
 
                     {/* Search Bar - Visual Only */}
                     <div className="relative hidden sm:block">
