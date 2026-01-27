@@ -17,6 +17,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const [savedRange, setSavedRange] = useState<Range | null>(null);
     const editorRef = useRef<HTMLDivElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
+    const featuredImageInputRef = useRef<HTMLInputElement>(null);
     const colorInputRef = useRef<HTMLInputElement>(null);
     const [activeCommands, setActiveCommands] = useState<Record<string, boolean>>({});
 
@@ -354,18 +355,27 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                         <div className="flex items-center gap-1">
                             <input
                                 type="file"
+                                ref={imageInputRef}
                                 id="body-image-upload"
-                                accept="image/jpeg, image/png, image/webp"
+                                accept="image/jpeg,image/png,image/webp"
                                 onChange={handleImageUpload}
                                 className="hidden"
                             />
-                            <label
-                                htmlFor="body-image-upload"
-                                className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px] group cursor-pointer"
+                            <button
+                                type="button"
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => {
+                                    // Use setTimeout to decouple system dialog from React click event
+                                    setTimeout(() => {
+                                        imageInputRef.current?.click();
+                                    }, 0);
+                                }}
+                                className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px] group"
+                                title="Add Image"
                             >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-[20px]">image</span>
                                 <span className="text-[10px] font-medium mt-0.5 text-slate-500 group-hover:text-slate-400">Image</span>
-                            </label>
+                            </button>
                         </div>
                     </div>
 
@@ -467,8 +477,21 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                             <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors">Click to upload image</span>
                                         </>
                                     )}
-                                    <input type="file" id="featured-image-input" accept="image/jpeg, image/png, image/webp" onChange={handleFeaturedImageUpload} className="hidden" />
-                                    <label htmlFor="featured-image-input" className="absolute inset-0 cursor-pointer"></label>
+                                    <input
+                                        type="file"
+                                        ref={featuredImageInputRef}
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleFeaturedImageUpload}
+                                        className="hidden"
+                                    />
+                                    <div
+                                        onClick={() => {
+                                            setTimeout(() => {
+                                                featuredImageInputRef.current?.click();
+                                            }, 0);
+                                        }}
+                                        className="absolute inset-0 cursor-pointer"
+                                    ></div>
                                 </div>
                             </div>
                         </aside>
