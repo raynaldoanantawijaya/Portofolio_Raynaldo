@@ -39,8 +39,13 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     // Listen for selection changes
     useEffect(() => {
         const handler = () => {
-            if (document.activeElement === editorRef.current) {
-                updateActiveCommands();
+            // Check if selection is within the editor
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                if (editorRef.current?.contains(range.commonAncestorContainer)) {
+                    updateActiveCommands();
+                }
             }
         };
         document.addEventListener('selectionchange', handler);
@@ -249,7 +254,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     <button
                                         onMouseDown={preventFocusLoss}
                                         onClick={() => { execCommand('bold'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.bold ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        className={`p-1 rounded transition-colors ${activeCommands.bold ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                         title="Bold"
                                     >
                                         <span className="material-symbols-outlined font-bold text-[18px]">format_bold</span>
@@ -257,7 +262,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     <button
                                         onMouseDown={preventFocusLoss}
                                         onClick={() => { execCommand('italic'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.italic ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        className={`p-1 rounded transition-colors ${activeCommands.italic ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                         title="Italic"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">format_italic</span>
@@ -265,7 +270,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     <button
                                         onMouseDown={preventFocusLoss}
                                         onClick={() => { execCommand('underline'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.underline ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        className={`p-1 rounded transition-colors ${activeCommands.underline ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                         title="Underline"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">format_underlined</span>
@@ -273,7 +278,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     <button
                                         onMouseDown={preventFocusLoss}
                                         onClick={() => { execCommand('strikeThrough'); updateActiveCommands(); }}
-                                        className={`p-1 rounded transition-colors ${activeCommands.strikeThrough ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                        className={`p-1 rounded transition-colors ${activeCommands.strikeThrough ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                         title="Strikethrough"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">format_strikethrough</span>
@@ -296,7 +301,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('insertUnorderedList'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.insertUnorderedList ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.insertUnorderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Bullets"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
@@ -304,7 +309,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('insertOrderedList'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.insertOrderedList ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.insertOrderedList ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Numbering"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
@@ -314,7 +319,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('justifyLeft'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyLeft ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyLeft ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Align Left"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_align_left</span>
@@ -322,7 +327,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('justifyCenter'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyCenter ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyCenter ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Align Center"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_align_center</span>
@@ -330,7 +335,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyRight ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Align Right"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_align_right</span>
@@ -338,7 +343,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                 <button
                                     onMouseDown={preventFocusLoss}
                                     onClick={() => { execCommand('justifyFull'); updateActiveCommands(); }}
-                                    className={`p-1 rounded transition-colors ${activeCommands.justifyFull ? 'bg-primary/20 text-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                    className={`p-1 rounded transition-colors ${activeCommands.justifyFull ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
                                     title="Justify"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">format_align_justify</span>
@@ -356,11 +361,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             />
                             <button
                                 type="button"
-                                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onClick={() => {
-                                    console.log('Image button clicked');
-                                    imageInputRef.current?.click();
-                                }}
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => imageInputRef.current?.click()}
                                 className="flex flex-col items-center justify-center p-2 rounded hover:bg-slate-800 transition-colors min-w-[50px] group"
                             >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-[20px]">image</span>
