@@ -48,9 +48,14 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         const canvasRect = canvas.getBoundingClientRect();
         const imgRect = img.getBoundingClientRect();
 
+        // Account for canvas borders for pixel-perfect absolute positioning
+        const style = window.getComputedStyle(canvas);
+        const borderTop = parseFloat(style.borderTopWidth) || 0;
+        const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+
         return {
-            top: imgRect.top - canvasRect.top + canvas.scrollTop,
-            left: imgRect.left - canvasRect.left + canvas.scrollLeft,
+            top: imgRect.top - canvasRect.top - borderTop + canvas.scrollTop,
+            left: imgRect.left - canvasRect.left - borderLeft + canvas.scrollLeft,
             width: imgRect.width,
             height: imgRect.height
         } as DOMRect;
@@ -284,24 +289,40 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
         const startX = e.clientX;
         const startWidth = selectedImage?.offsetWidth || 0;
+        let lastMoveEvent: PointerEvent | null = null;
+        let ticking = false;
 
-        // Find the overlay and border elements to update them directly for zero lag
-        const overlay = document.getElementById('image-edit-overlay');
-        const overlayBorder = overlay?.querySelector('.overlay-border') as HTMLElement;
+        const updateResize = () => {
+            if (!selectedImage || !lastMoveEvent) {
+                ticking = false;
+                return;
+            }
+
+            const deltaX = lastMoveEvent.clientX - startX;
+            const newWidth = Math.max(50, startWidth + deltaX);
+
+            // Update image directly for instant feedback
+            selectedImage.style.width = `${newWidth}px`;
+            selectedImage.style.height = 'auto';
+
+            // Calculate new relative rect
+            const rect = getRelativeRect(selectedImage);
+            if (rect) {
+                // Update React state AND direct DOM for the overlay
+                setImageRect(rect);
+                syncOverlayPosition(selectedImage, rect);
+            }
+
+            ticking = false;
+        };
 
         const handlePointerMove = (moveEvent: PointerEvent) => {
             if (selectedImage) {
-                const deltaX = moveEvent.clientX - startX;
-                const newWidth = Math.max(50, startWidth + deltaX);
-
-                // Update DOM directly for instant feedback (Zero Lag)
-                requestAnimationFrame(() => {
-                    selectedImage.style.width = `${newWidth}px`;
-                    selectedImage.style.height = 'auto';
-
-                    // Sync overlay position relative to canvas
-                    syncOverlayPosition(selectedImage);
-                });
+                lastMoveEvent = moveEvent;
+                if (!ticking) {
+                    requestAnimationFrame(updateResize);
+                    ticking = true;
+                }
             }
         };
 
@@ -318,11 +339,9 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
             if (editorRef.current) {
                 setContent(editorRef.current.innerHTML);
-                // Final state sync for React using relative coordinates
-                if (selectedImage) {
-                    const rect = getRelativeRect(selectedImage);
-                    if (rect) setImageRect(rect);
-                }
+                // Final state sync
+                const rect = getRelativeRect(selectedImage!);
+                if (rect) setImageRect(rect);
             }
         };
 
