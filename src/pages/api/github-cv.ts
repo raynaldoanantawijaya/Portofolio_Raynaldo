@@ -10,7 +10,7 @@ export const POST: APIRoute = async ({ request }) => {
         const GITHUB_OWNER = import.meta.env.GITHUB_OWNER || 'raynaldoanantawijaya';
         const GITHUB_REPO = import.meta.env.GITHUB_REPO || 'Portofolio_Raynaldo';
         const BRANCH = 'main';
-        const FILE_PATH = 'public/assets/cv.pdf'; // Fixed path for simplicity and cleaner URL
+        const FILE_PATH = 'public/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf'; // Specific filename request
 
         if (!GITHUB_TOKEN) {
             return new Response(JSON.stringify({ error: 'Server config error: GITHUB_TOKEN missing' }), { status: 500 });
@@ -68,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
             }
 
             const data = await putRes.json();
-            return new Response(JSON.stringify({ success: true, url: '/assets/cv.pdf', commit: data.commit.sha }), { status: 200 });
+            return new Response(JSON.stringify({ success: true, url: '/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf', commit: data.commit.sha }), { status: 200 });
 
         } else if (action === 'delete') {
             if (!currentSha) {

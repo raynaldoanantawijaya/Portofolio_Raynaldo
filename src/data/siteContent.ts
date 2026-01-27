@@ -94,7 +94,7 @@ export const defaultContent: SiteContent = {
         description: "Saya memiliki minat pada teknik elektro, robotik, dan pemrograman, dengan fokus menggabungkan teori dan praktik untuk menciptakan solusi inovatif.",
         btnDownload: "Download CV",
         btnProjects: "Lihat Proyek",
-        cvFile: ""
+        cvFile: "/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf"
     },
     about: {
         title: "Tentang Saya",
