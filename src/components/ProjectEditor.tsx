@@ -85,9 +85,13 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
             const target = selection?.focusNode?.childNodes[selection.focusOffset] as HTMLElement;
             if (target?.tagName === 'IMG') {
+                // Remove 'selected' class from all images first
+                editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+                target.classList.add('selected');
                 setSelectedImage(target as HTMLImageElement);
                 updateOverlay();
             } else if (!isResizing) {
+                editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
                 setSelectedImage(null);
                 setImageRect(null);
             }
@@ -225,9 +229,12 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const handleEditorClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
         if (target.tagName === 'IMG') {
+            editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+            target.classList.add('selected');
             setSelectedImage(target as HTMLImageElement);
             setImageRect(target.getBoundingClientRect());
         } else {
+            editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
             setSelectedImage(null);
             setImageRect(null);
         }
@@ -546,7 +553,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     contentEditable
                                     onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
                                     onClick={handleEditorClick}
-                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:hover:ring-2 [&_img]:hover:ring-primary/30 [&_img]:transition-all"
+                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:transition-all [&_img.selected]:ring-2 [&_img.selected]:ring-primary/50"
                                 />
 
                                 {/* Image Editing Overlay - Integrated into Canvas */}
@@ -691,46 +698,6 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                 </main>
             </div>
 
-            {/* Image Editing Overlay */}
-            {selectedImage && imageRect && (
-                <div
-                    id="image-edit-overlay"
-                    className="fixed z-[100] pointer-events-none transition-none"
-                    style={{
-                        top: imageRect.top,
-                        left: imageRect.left,
-                        width: imageRect.width,
-                        height: imageRect.height,
-                    }}
-                >
-                    <div className="overlay-border absolute inset-0 border-2 border-primary shadow-[0_0_10px_rgba(255,107,107,0.3)] pointer-events-none"></div>
-
-                    {/* Delete Button */}
-                    <button
-                        onClick={handleDeleteImage}
-                        className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
-                        title="Hapus Gambar"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">close</span>
-                    </button>
-
-                    {/* Resize Handle with larger hit area */}
-                    <div
-                        onPointerDown={handleResizeStart}
-                        className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
-                        title="Tarik untuk mengubah ukuran"
-                    >
-                        <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
-                        </div>
-                    </div>
-
-                    {/* Size Tooltip */}
-                    <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
-                        {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
