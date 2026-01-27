@@ -43,19 +43,32 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     // Listen for selection changes and scroll
     useEffect(() => {
         let rafId: number;
-        const updateOverlay = () => {
-            if (selectedImage && selectedImage.parentElement) {
-                rafId = requestAnimationFrame(() => {
-                    const newRect = selectedImage.getBoundingClientRect();
-                    setImageRect(newRect);
 
-                    // Direct DOM update for overlay if it exists
+        const updateOverlay = () => {
+            if (selectedImage && selectedImage.parentElement && editorRef.current) {
+                rafId = requestAnimationFrame(() => {
+                    const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
+                    if (!canvas) return;
+
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const imageRect = selectedImage.getBoundingClientRect();
+
+                    const top = imageRect.top - canvasRect.top + canvas.scrollTop;
+                    const left = imageRect.left - canvasRect.left + canvas.scrollLeft;
+
+                    setImageRect({
+                        top,
+                        left,
+                        width: imageRect.width,
+                        height: imageRect.height
+                    } as DOMRect);
+
                     const overlay = document.getElementById('image-edit-overlay');
                     if (overlay) {
-                        overlay.style.top = `${newRect.top}px`;
-                        overlay.style.left = `${newRect.left}px`;
-                        overlay.style.width = `${newRect.width}px`;
-                        overlay.style.height = `${newRect.height}px`;
+                        overlay.style.top = `${top}px`;
+                        overlay.style.left = `${left}px`;
+                        overlay.style.width = `${imageRect.width}px`;
+                        overlay.style.height = `${imageRect.height}px`;
                     }
                 });
             }
@@ -70,13 +83,11 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                 }
             }
 
-            // Detect if an image is selected (via selection or click)
             const target = selection?.focusNode?.childNodes[selection.focusOffset] as HTMLElement;
             if (target?.tagName === 'IMG') {
                 setSelectedImage(target as HTMLImageElement);
-                setImageRect(target.getBoundingClientRect());
+                updateOverlay();
             } else if (!isResizing) {
-                // Don't deselect if we are currently resizing
                 setSelectedImage(null);
                 setImageRect(null);
             }
@@ -85,7 +96,6 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         document.addEventListener('selectionchange', handler);
         window.addEventListener('resize', updateOverlay);
 
-        // Correct scroll container is the grandparent of the contentEditable
         const scrollContainer = editorRef.current?.parentElement?.parentElement;
         scrollContainer?.addEventListener('scroll', updateOverlay, { passive: true });
 
@@ -264,17 +274,23 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     selectedImage.style.width = `${newWidth}px`;
                     selectedImage.style.height = 'auto';
 
-                    // Sync overlay position immediately
-                    const newRect = selectedImage.getBoundingClientRect();
-                    if (overlay) {
-                        overlay.style.width = `${newRect.width}px`;
-                        overlay.style.height = `${newRect.height}px`;
-                        overlay.style.top = `${newRect.top}px`;
-                        overlay.style.left = `${newRect.left}px`;
+                    // Sync overlay position relative to canvas
+                    const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
+                    if (canvas && overlay) {
+                        const canvasRect = canvas.getBoundingClientRect();
+                        const imageRect = selectedImage.getBoundingClientRect();
+
+                        const top = imageRect.top - canvasRect.top + canvas.scrollTop;
+                        const left = imageRect.left - canvasRect.left + canvas.scrollLeft;
+
+                        overlay.style.width = `${imageRect.width}px`;
+                        overlay.style.height = `${imageRect.height}px`;
+                        overlay.style.top = `${top}px`;
+                        overlay.style.left = `${left}px`;
 
                         const tooltip = overlay.querySelector('.size-tooltip');
                         if (tooltip) {
-                            tooltip.textContent = `${Math.round(newRect.width)}px × ${Math.round(newRect.height)}px`;
+                            tooltip.textContent = `${Math.round(imageRect.width)}px × ${Math.round(imageRect.height)}px`;
                         }
                     }
                 });
@@ -530,8 +546,49 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     contentEditable
                                     onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
                                     onClick={handleEditorClick}
-                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:hover:ring-2 [&_img]:hover:ring-red-500 [&_img]:hover:ring-offset-2 [&_img]:hover:ring-offset-[#262626] [&_img]:transition-all"
+                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:hover:ring-2 [&_img]:hover:ring-primary/30 [&_img]:transition-all"
                                 />
+
+                                {/* Image Editing Overlay - Integrated into Canvas */}
+                                {selectedImage && imageRect && (
+                                    <div
+                                        id="image-edit-overlay"
+                                        className="absolute z-[100] pointer-events-none transition-none"
+                                        style={{
+                                            top: imageRect.top,
+                                            left: imageRect.left,
+                                            width: imageRect.width,
+                                            height: imageRect.height,
+                                        }}
+                                    >
+                                        {/* No external border anymore per user request */}
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={handleDeleteImage}
+                                            className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
+                                            title="Hapus Gambar"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">close</span>
+                                        </button>
+
+                                        {/* Resize Handle with larger hit area */}
+                                        <div
+                                            onPointerDown={handleResizeStart}
+                                            className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
+                                            title="Tarik untuk mengubah ukuran"
+                                        >
+                                            <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Size Tooltip */}
+                                        <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
+                                            {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
