@@ -84,8 +84,10 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=3600')
                    src={profileImage} 
                    alt="Foto Profil" 
                    class="profile-image" 
-                   widths={[240, 360, 540, profileImage.width]}
-                   sizes={`(max-width: 360px) 240px, (max-width: 540px) 360px, (max-width: 720px) 540px, ${profileImage.width}px`}
+                   widths={[240, 360, 480, 600]}
+                   sizes={`(max-width: 360px) 240px, (max-width: 480px) 360px, (max-width: 720px) 480px, 600px`}
+                   quality={60}
+                   format="webp"
                    loading="eager"
                    fetchpriority="high"
                />
