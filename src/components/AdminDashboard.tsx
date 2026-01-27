@@ -128,7 +128,27 @@ export default function AdminDashboard() {
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [uploadStats, setUploadStats] = useState<string>('');
     const [deleteCountdown, setDeleteCountdown] = useState<number | null>(null);
-    const [isDirty, setIsDirty] = useState(false); // Track unsaved changes
+    const [isDirty, setIsDirty] = useState(false);
+
+    // Custom Modal State
+    const [modal, setModal] = useState<{
+        isOpen: boolean;
+        type: 'alert' | 'confirm';
+        message: string;
+        onConfirm?: () => void;
+    }>({ isOpen: false, type: 'alert', message: '' });
+
+    const showAlert = (message: string) => {
+        setModal({ isOpen: true, type: 'alert', message, onConfirm: () => setModal(prev => ({ ...prev, isOpen: false })) });
+    };
+
+    const showConfirm = (message: string, onConfirm: () => void) => {
+        setModal({ isOpen: true, type: 'confirm', message, onConfirm });
+    };
+
+    const closeModal = () => {
+        setModal(prev => ({ ...prev, isOpen: false }));
+    };
 
     const formatBytes = (bytes: number, decimals = 2) => {
         if (!+bytes) return '0 Bytes';
@@ -152,10 +172,10 @@ export default function AdminDashboard() {
         setIsSaving(true);
         const success = await saveContentAsync(content);
         if (success) {
-            alert('Perubahan berhasil disimpan ke Firestore!');
+            showAlert('Perubahan berhasil disimpan ke Firestore!');
             setIsDirty(false); // Reset dirty state
         } else {
-            alert('Gagal menyimpan perubahan. Cek koneksi internet atau izin.');
+            showAlert('Gagal menyimpan perubahan. Cek koneksi internet atau izin.');
         }
         setIsSaving(false);
     };
@@ -200,7 +220,7 @@ export default function AdminDashboard() {
         setContent(newContent);
         setIsDirty(true);
         setEditingProject(null); // Close editor
-        alert('Project diperbarui! Jangan lupa klik "Simpan Perubahan" di sidebar untuk menyimpan ke server.');
+        showAlert('Project diperbarui! Jangan lupa klik "Simpan Perubahan" di sidebar untuk menyimpan ke server.');
     };
 
     const handleAddNewProject = () => {
@@ -226,15 +246,14 @@ export default function AdminDashboard() {
 
     const handleDeleteProject = (id: string, e: any) => {
         e.stopPropagation();
-        if (confirm('Are you sure you want to delete this project?')) {
+        showConfirm('Are you sure you want to delete this project?', () => {
             if (content) {
                 const newProjects = content.projects.filter(p => p.id !== id);
                 const newContent = { ...content, projects: newProjects };
                 setContent(newContent);
-                setContent(newContent);
-                // Auto-save removed - use Save button
+                setIsDirty(true);
             }
-        }
+        });
     };
 
     // Skills Logic
@@ -263,7 +282,7 @@ export default function AdminDashboard() {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 3 * 1024 * 1024) { // 3MB limit
-                alert('Ukuran file terlalu besar! Maksimal 3MB.');
+                showAlert('Ukuran file terlalu besar! Maksimal 3MB.');
                 return;
             }
 
@@ -304,19 +323,19 @@ export default function AdminDashboard() {
                             }
                             setUploadProgress(null);
                             setUploadStats('');
-                            alert('CV berhasil diupload! Website akan update dalam 1-2 menit.');
+                            showAlert('CV berhasil diupload! Website akan update dalam 1-2 menit.');
                         }, 500);
                     } else {
                         const data = JSON.parse(xhr.responseText);
                         setUploadProgress(null);
                         console.error('Upload Error:', data);
-                        alert(`Gagal upload: ${data.error || 'Unknown error'}`);
+                        showAlert(`Gagal upload: ${data.error || 'Unknown error'}`);
                     }
                 };
 
                 xhr.onerror = () => {
                     setUploadProgress(null);
-                    alert('Gagal upload: Network Error');
+                    showAlert('Gagal upload: Network Error');
                 };
 
                 xhr.send(JSON.stringify({ action: 'upload', file: base64File }));
@@ -325,7 +344,7 @@ export default function AdminDashboard() {
             reader.onerror = (error) => {
                 setUploadProgress(null);
                 console.error('File reading error:', error);
-                alert('Gagal membaca file local.');
+                showAlert('Gagal membaca file local.');
             };
         }
     };
@@ -333,50 +352,50 @@ export default function AdminDashboard() {
     const handleCVDelete = async () => {
         if (!content?.hero.cvFile) return;
 
-        if (!confirm('Hapus CV? Ini akan memicu build ulang.')) return;
+        showConfirm('Hapus CV? Ini akan memicu build ulang.', async () => {
+            setDeleteCountdown(30); // Start 30s timer
 
-        setDeleteCountdown(30); // Start 30s timer
-
-        // Start Timer Interval
-        const timerId = setInterval(() => {
-            setDeleteCountdown(prev => {
-                if (prev === null || prev <= 1) {
-                    clearInterval(timerId);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        try {
-            const response = await fetch('/api/github-cv', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'delete' })
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Delete failed');
-
-            // Wait until timer finishes to handle UI
-            setTimeout(() => {
-                setDeleteCountdown(null);
-                setContent({
-                    ...content,
-                    hero: {
-                        ...content.hero,
-                        cvFile: ''
+            // Start Timer Interval
+            const timerId = setInterval(() => {
+                setDeleteCountdown(prev => {
+                    if (prev === null || prev <= 1) {
+                        clearInterval(timerId);
+                        return 0;
                     }
+                    return prev - 1;
                 });
-                alert('CV Dihapus. Mohon tunggu build selesai (1-2 menit).');
-            }, 30000);
+            }, 1000);
 
-        } catch (error: any) {
-            clearInterval(timerId);
-            setDeleteCountdown(null);
-            console.error('Delete error details:', error);
-            alert(`Gagal menghapus CV: ${error.message || 'Unknown error'}`);
-        }
+            try {
+                const response = await fetch('/api/github-cv', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete' })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Delete failed');
+
+                // Wait until timer finishes to handle UI
+                setTimeout(() => {
+                    setDeleteCountdown(null);
+                    setContent(prev => prev ? ({
+                        ...prev,
+                        hero: {
+                            ...prev.hero,
+                            cvFile: ''
+                        }
+                    }) : null);
+                    showAlert('CV Dihapus. Mohon tunggu build selesai (1-2 menit).');
+                }, 30000);
+
+            } catch (error: any) {
+                clearInterval(timerId);
+                setDeleteCountdown(null);
+                console.error('Delete error details:', error);
+                showAlert(`Gagal menghapus CV: ${error.message || 'Unknown error'}`);
+            }
+        });
     };
 
 
@@ -458,13 +477,16 @@ export default function AdminDashboard() {
                 <div className="p-4 border-t border-slate-800 space-y-2">
                     <button
                         onClick={async () => {
+                            const performLogout = async () => {
+                                const { logoutAdmin } = await import('../lib/authService');
+                                await logoutAdmin();
+                            };
+
                             if (isDirty) {
-                                if (!confirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin keluar? Perubahan akan hilang.')) {
-                                    return;
-                                }
+                                showConfirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin keluar? Perubahan akan hilang.', performLogout);
+                            } else {
+                                performLogout();
                             }
-                            const { logoutAdmin } = await import('../lib/authService');
-                            await logoutAdmin();
                         }}
                         className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-900/10 py-2.5 rounded-lg font-medium transition-colors"
                     >
@@ -960,6 +982,48 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             </main>
+
+            {/* Custom Modal Overlay */}
+            {modal.isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#1e1e1e] border border-slate-700 rounded-xl p-6 max-w-sm w-full shadow-2xl scale-100 animate-in zoom-in-95 duration-200 mx-4">
+                        <div className="flex flex-col items-center text-center">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${modal.type === 'alert' ? 'bg-primary/20 text-primary' : 'bg-yellow-500/20 text-yellow-500'}`}>
+                                <span className="material-symbols-outlined text-2xl">
+                                    {modal.type === 'alert' ? 'info' : 'warning'}
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">
+                                {modal.type === 'alert' ? 'Informasi' : 'Konfirmasi'}
+                            </h3>
+                            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                                {modal.message}
+                            </p>
+
+                            <div className="flex gap-3 w-full">
+                                {modal.type === 'confirm' && (
+                                    <button
+                                        onClick={closeModal}
+                                        className="flex-1 px-4 py-2 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors font-medium text-sm"
+                                    >
+                                        Batal
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        if (modal.onConfirm) modal.onConfirm();
+                                        if (modal.type === 'alert') closeModal(); // Auto close alert, confirm usually navigates away or runs logic that might want to keep it open or close it manually
+                                        if (modal.type === 'confirm') closeModal();
+                                    }}
+                                    className={`flex-1 px-4 py-2 rounded-lg text-white font-medium text-sm transition-colors shadow-lg ${modal.type === 'confirm' ? 'bg-red-600 hover:bg-red-500 shadow-red-900/20' : 'bg-primary hover:bg-primary-light shadow-primary/20'}`}
+                                >
+                                    {modal.type === 'confirm' ? 'Ya, Lanjutkan' : 'Mengerti'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
