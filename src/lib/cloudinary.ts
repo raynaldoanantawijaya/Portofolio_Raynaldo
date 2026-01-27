@@ -66,3 +66,27 @@ export async function uploadPDF(file: File): Promise<string> {
         throw error;
     }
 }
+
+// Delete file from Cloudinary (via server-side API)
+export async function deleteCV(url: string): Promise<boolean> {
+    try {
+        const response = await fetch('/api/delete-cv', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url, resourceType: 'raw' }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Delete failed');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error deleting CV:', error);
+        throw error;
+    }
+}

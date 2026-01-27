@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getContentAsync, saveContentAsync } from '../utils/contentStore';
-import { uploadPDF, deleteCV } from '../lib/cloudinary';
+
 // @ts-ignore
 import type { SiteContent, Project, Skill } from '../data/siteContent';
 import ProjectEditor from './ProjectEditor';
@@ -240,38 +240,64 @@ export default function AdminDashboard() {
     const handleCVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                alert('Ukuran file terlalu besar! Maksimal 5MB.');
+            if (file.size > 3 * 1024 * 1024) { // 3MB limit
+                alert('Ukuran file terlalu besar! Maksimal 3MB.');
                 return;
             }
 
-            try {
-                // Upload to Cloudinary
-                const url = await uploadPDF(file);
+            // Convert to Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64File = reader.result as string;
 
-                if (!content) return;
-                setContent({
-                    ...content,
-                    hero: {
-                        ...content.hero,
-                        cvFile: url
-                    }
-                });
-                alert('CV berhasil diupload!');
-            } catch (error: any) {
-                console.error(error);
-                alert(`Gagal mengupload CV: ${error.message}`);
-            }
+                try {
+                    // Upload to GitHub Repo via API
+                    const response = await fetch('/api/github-cv', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'upload', file: base64File })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Upload failed');
+
+                    // Success
+                    if (!content) return;
+                    setContent({
+                        ...content,
+                        hero: {
+                            ...content.hero,
+                            cvFile: '/assets/cv.pdf' // Fixed path
+                        }
+                    });
+                    alert('CV berhasil diupload ke GitHub! Perubahan akan muncul dalam 1-2 menit setelah Vercel selesai build ulang.');
+                } catch (error: any) {
+                    console.error('Upload error:', error);
+                    alert(`Gagal mengupload CV: ${error.message}`);
+                }
+            };
+            reader.onerror = (error) => {
+                console.error('File reading error:', error);
+                alert('Gagal membaca file.');
+            };
         }
     };
 
     const handleCVDelete = async () => {
         if (!content?.hero.cvFile) return;
 
-        if (!confirm('Apakah Anda yakin ingin menghapus CV ini?')) return;
+        if (!confirm('Apakah Anda yakin ingin menghapus CV ini dari Repository? Ini akan mentrigger build ulang.')) return;
 
         try {
-            await deleteCV(content.hero.cvFile);
+            const response = await fetch('/api/github-cv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete' })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Delete failed');
 
             setContent({
                 ...content,
@@ -280,7 +306,7 @@ export default function AdminDashboard() {
                     cvFile: ''
                 }
             });
-            alert('CV berhasil dihapus!');
+            alert('CV berhasil dihapus dari GitHub! Tunggu 1-2 menit untuk update.');
         } catch (error: any) {
             console.error('Delete error details:', error);
             alert(`Gagal menghapus CV: ${error.message || 'Unknown error'}`);
