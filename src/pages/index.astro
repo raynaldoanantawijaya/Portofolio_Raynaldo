@@ -138,7 +138,11 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=3600')
                 <div class="skills-container" id="skills-container">
                     {content.skills.map((skill) => (
                         <div class="skill-item">
-                            <img src={skill.icon} alt={skill.title} class="skill-icon" />
+                            {skill.icon.startsWith('<svg') ? (
+                                <div class="skill-icon" set:html={skill.icon} />
+                            ) : (
+                                <img src={skill.icon} alt={skill.title} class="skill-icon" />
+                            )}
                             <div class="skill-info">
                                 <div class="skill-title">{skill.title}</div>
                                 <div class="skill-desc">{skill.desc}</div>
