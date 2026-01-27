@@ -9,6 +9,9 @@ import react from '@astrojs/react';
 export default defineConfig({
     site: 'https://raynaldoanantawijaya.my.id',
     output: 'server',
+    build: {
+        inlineStylesheets: 'always'
+    },
     adapter: vercel({
         imageService: true,
         webAnalytics: {

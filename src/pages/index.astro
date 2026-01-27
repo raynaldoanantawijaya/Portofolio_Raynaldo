@@ -124,8 +124,10 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=3600')
                      <Image 
                         src={profileImage} 
                         alt="Foto Kecil Profil" 
-                        width={80} 
-                        height={80} 
+                        widths={[80, 160]}
+                        sizes="80px"
+                        quality={60}
+                        format="webp"
                         class="about-photo-img"
                     />
                 </div>
