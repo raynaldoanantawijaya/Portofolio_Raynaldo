@@ -15,8 +15,21 @@ import { defaultContent, type SiteContent, type Project, type Skill } from '../d
 const SITE_CONTENT_DOC = 'main';
 const COLLECTION_NAME = 'siteContent';
 
+// Simple in-memory cache
+let cachedContent: SiteContent | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // Get all site content
 export async function getSiteContent(): Promise<SiteContent> {
+    const now = Date.now();
+
+    // Serve from cache if valid
+    if (cachedContent && (now - lastFetchTime < CACHE_TTL)) {
+        console.log('Serving site content from cache');
+        return cachedContent;
+    }
+
     try {
         console.log('Fetching site content from Firestore...');
         const docRef = doc(db, COLLECTION_NAME, SITE_CONTENT_DOC);
@@ -26,7 +39,7 @@ export async function getSiteContent(): Promise<SiteContent> {
             console.log('Document found!', docSnap.data());
             const data = docSnap.data() as SiteContent;
             // Merge with defaults to ensure all fields exist
-            return {
+            cachedContent = {
                 ...defaultContent,
                 ...data,
                 hero: { ...defaultContent.hero, ...data.hero },
@@ -35,14 +48,20 @@ export async function getSiteContent(): Promise<SiteContent> {
                 projects: data.projects?.length > 0 ? data.projects : defaultContent.projects,
                 skills: data.skills?.length > 0 ? data.skills : defaultContent.skills,
             };
+            lastFetchTime = now;
+            return cachedContent;
         }
 
         console.log('No document found, initializing default data...');
         // If no data exists, initialize with defaults
         await setDoc(docRef, defaultContent);
+        cachedContent = defaultContent;
+        lastFetchTime = now;
         return defaultContent;
     } catch (error) {
         console.error('Error getting site content:', error);
+        // Fallback to cache even if expired ensuring page doesn't crash
+        if (cachedContent) return cachedContent;
         return defaultContent;
     }
 }
@@ -57,6 +76,10 @@ export async function saveSiteContent(content: SiteContent): Promise<boolean> {
         const cleanContent = JSON.parse(JSON.stringify(content));
 
         await setDoc(docRef, cleanContent, { merge: true });
+
+        // Invalidate cache
+        cachedContent = null;
+
         console.log('Content saved successfully to Firestore!');
         return true;
     } catch (error) {

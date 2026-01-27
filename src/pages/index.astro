@@ -15,6 +15,8 @@ try {
 } catch (e) {
     console.error("Failed to fetch content from Firestore:", e);
 }
+// Set Cache-Control to cache at Edge for 1 hour
+Astro.response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=3600');
 ---
 
 <Layout title="Portofolio Raynaldo Ananta Wijaya">
@@ -85,6 +87,7 @@ try {
                    width={250} 
                    height={333} 
                    loading="eager"
+                   fetchpriority="high"
                />
             </div>
         </div>
