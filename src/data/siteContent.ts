@@ -41,6 +41,7 @@ export interface SiteContent {
         btnDownload: string; // Text for button
         btnProjects: string; // Text for button
         cvFile?: string; // Base64 data URI
+        cvFilename?: string; // Original uploaded filename
     };
     about: {
         title: string;
@@ -94,7 +95,8 @@ export const defaultContent: SiteContent = {
         description: "Saya memiliki minat pada teknik elektro, robotik, dan pemrograman, dengan fokus menggabungkan teori dan praktik untuk menciptakan solusi inovatif.",
         btnDownload: "Download CV",
         btnProjects: "Lihat Proyek",
-        cvFile: "/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf"
+        cvFile: "/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf",
+        cvFilename: "CV_RAYNALDO_ANANTA_WIJAYA.pdf"
     },
     about: {
         title: "Tentang Saya",

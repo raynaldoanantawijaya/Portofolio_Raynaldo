@@ -317,7 +317,8 @@ export default function AdminDashboard() {
                                     ...content,
                                     hero: {
                                         ...content.hero,
-                                        cvFile: '/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf'
+                                        cvFile: '/assets/CV_RAYNALDO_ANANTA_WIJAYA.pdf',
+                                        cvFilename: file.name
                                     }
                                 });
                                 setIsDirty(true);
