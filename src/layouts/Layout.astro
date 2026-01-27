@@ -52,7 +52,18 @@ const siteKeywords = "raynaldo, raynaldo ananta, raynaldo ananta wijaya, raynald
 
 		
         <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+       
+        <script is:inline>
+            /* KILL SWITCH: Ensure any old Service Workers are destroyed to clear the cache chain */
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                        console.log('Service Worker Unregistered');
+                    }
+                });
+            }
+        </script>
 		
         <!-- ✅ Preload font dan style utama untuk mempercepat LCP -->
         <link rel="preload" href="/assets/fonts/Poppins-Regular.woff2" as="font" type="font/woff2" crossorigin>
