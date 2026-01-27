@@ -40,6 +40,40 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         });
     };
 
+    // Helper to get image coordinates relative to the canvas
+    const getRelativeRect = (img: HTMLImageElement) => {
+        const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
+        if (!canvas) return null;
+
+        const canvasRect = canvas.getBoundingClientRect();
+        const imgRect = img.getBoundingClientRect();
+
+        return {
+            top: imgRect.top - canvasRect.top + canvas.scrollTop,
+            left: imgRect.left - canvasRect.left + canvas.scrollLeft,
+            width: imgRect.width,
+            height: imgRect.height
+        } as DOMRect;
+    };
+
+    const syncOverlayPosition = (img: HTMLImageElement, rect?: DOMRect) => {
+        const r = rect || getRelativeRect(img);
+        if (!r) return;
+
+        const overlay = document.getElementById('image-edit-overlay');
+        if (overlay) {
+            overlay.style.top = `${r.top}px`;
+            overlay.style.left = `${r.left}px`;
+            overlay.style.width = `${r.width}px`;
+            overlay.style.height = `${r.height}px`;
+
+            const tooltip = overlay.querySelector('.size-tooltip');
+            if (tooltip) {
+                tooltip.textContent = `${Math.round(r.width)}px × ${Math.round(r.height)}px`;
+            }
+        }
+    };
+
     // Listen for selection changes and scroll
     useEffect(() => {
         let rafId: number;
@@ -47,28 +81,10 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         const updateOverlay = () => {
             if (selectedImage && selectedImage.parentElement && editorRef.current) {
                 rafId = requestAnimationFrame(() => {
-                    const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
-                    if (!canvas) return;
-
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const imageRect = selectedImage.getBoundingClientRect();
-
-                    const top = imageRect.top - canvasRect.top + canvas.scrollTop;
-                    const left = imageRect.left - canvasRect.left + canvas.scrollLeft;
-
-                    setImageRect({
-                        top,
-                        left,
-                        width: imageRect.width,
-                        height: imageRect.height
-                    } as DOMRect);
-
-                    const overlay = document.getElementById('image-edit-overlay');
-                    if (overlay) {
-                        overlay.style.top = `${top}px`;
-                        overlay.style.left = `${left}px`;
-                        overlay.style.width = `${imageRect.width}px`;
-                        overlay.style.height = `${imageRect.height}px`;
+                    const rect = getRelativeRect(selectedImage);
+                    if (rect) {
+                        setImageRect(rect);
+                        syncOverlayPosition(selectedImage, rect);
                     }
                 });
             }
@@ -197,7 +213,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     if (images && images.length > 0) {
                         const lastImg = images[images.length - 1];
                         setSelectedImage(lastImg);
-                        setImageRect(lastImg.getBoundingClientRect());
+                        const rect = getRelativeRect(lastImg);
+                        if (rect) setImageRect(rect);
                     }
                 }, 50);
             };
@@ -232,7 +249,8 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
             editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
             target.classList.add('selected');
             setSelectedImage(target as HTMLImageElement);
-            setImageRect(target.getBoundingClientRect());
+            const rect = getRelativeRect(target as HTMLImageElement);
+            if (rect) setImageRect(rect);
         } else {
             editorRef.current?.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
             setSelectedImage(null);
@@ -282,24 +300,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     selectedImage.style.height = 'auto';
 
                     // Sync overlay position relative to canvas
-                    const canvas = editorRef.current?.closest('.document-canvas') as HTMLElement;
-                    if (canvas && overlay) {
-                        const canvasRect = canvas.getBoundingClientRect();
-                        const imageRect = selectedImage.getBoundingClientRect();
-
-                        const top = imageRect.top - canvasRect.top + canvas.scrollTop;
-                        const left = imageRect.left - canvasRect.left + canvas.scrollLeft;
-
-                        overlay.style.width = `${imageRect.width}px`;
-                        overlay.style.height = `${imageRect.height}px`;
-                        overlay.style.top = `${top}px`;
-                        overlay.style.left = `${left}px`;
-
-                        const tooltip = overlay.querySelector('.size-tooltip');
-                        if (tooltip) {
-                            tooltip.textContent = `${Math.round(imageRect.width)}px × ${Math.round(imageRect.height)}px`;
-                        }
-                    }
+                    syncOverlayPosition(selectedImage);
                 });
             }
         };
@@ -317,9 +318,10 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
 
             if (editorRef.current) {
                 setContent(editorRef.current.innerHTML);
-                // Final state sync for React
+                // Final state sync for React using relative coordinates
                 if (selectedImage) {
-                    setImageRect(selectedImage.getBoundingClientRect());
+                    const rect = getRelativeRect(selectedImage);
+                    if (rect) setImageRect(rect);
                 }
             }
         };
