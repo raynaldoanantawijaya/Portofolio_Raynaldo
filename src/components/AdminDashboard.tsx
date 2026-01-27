@@ -129,6 +129,7 @@ export default function AdminDashboard() {
     const [uploadStats, setUploadStats] = useState<string>('');
     const [deleteCountdown, setDeleteCountdown] = useState<number | null>(null);
     const [isDirty, setIsDirty] = useState(false);
+    const [autoSaveTimer, setAutoSaveTimer] = useState(60);
 
     // Custom Modal State
     const [modal, setModal] = useState<{
@@ -167,17 +168,42 @@ export default function AdminDashboard() {
         load();
     }, []);
 
-    const handleSave = async () => {
-        if (!content) return;
+    // Auto-save Interval Effect
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        if (isDirty && !isSaving) {
+            interval = setInterval(() => {
+                setAutoSaveTimer((prev) => {
+                    if (prev <= 1) {
+                        handleSave(true); // Trigger silent save
+                        return 60;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        } else {
+            setAutoSaveTimer(60);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isDirty, isSaving, content]);
+
+    const handleSave = async (silent = false) => {
+        if (!content) return false;
         setIsSaving(true);
         const success = await saveContentAsync(content);
         if (success) {
-            showAlert('Perubahan berhasil disimpan ke Firestore!');
+            if (!silent) showAlert('Perubahan berhasil disimpan ke Firestore!');
             setIsDirty(false); // Reset dirty state
+            setAutoSaveTimer(60); // Reset timer after save
         } else {
-            showAlert('Gagal menyimpan perubahan. Cek koneksi internet atau izin.');
+            if (!silent) showAlert('Gagal menyimpan perubahan. Cek koneksi internet atau izin.');
         }
         setIsSaving(false);
+        return success;
     };
 
     const handleChange = (section: keyof SiteContent, key: string, value: any, nestedKey?: string) => {
@@ -435,14 +461,24 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Admin Status */}
-                    <div className="text-xs text-slate-500 bg-slate-800/50 p-2 rounded border border-slate-700 flex items-center justify-between">
-                        <span>Status: Cloud</span>
-                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    <div className="text-xs text-slate-500 bg-slate-800/50 p-2 rounded border border-slate-700 flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                            <span>Status: Cloud</span>
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        </div>
+                        {isDirty && (
+                            <div className="flex items-center justify-between text-primary border-t border-slate-700/50 pt-2 animate-pulse">
+                                <div className="flex items-center gap-1.5">
+                                    <span className={`material-symbols-outlined text-[14px] ${isSaving ? 'animate-spin' : ''}`}>sync</span>
+                                    <span>Auto-save {isSaving ? '...' : `in ${autoSaveTimer}s`}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* SAVE BUTTON */}
                     <button
-                        onClick={handleSave}
+                        onClick={() => handleSave()}
                         disabled={isSaving}
                         className={`w-full py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-medium transition-all ${isSaving ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20'}`}
                     >
@@ -485,15 +521,21 @@ export default function AdminDashboard() {
                 <div className="p-4 border-t border-slate-800 space-y-2">
                     <button
                         onClick={async () => {
-                            const performLogout = async () => {
-                                const { logoutAdmin } = await import('../lib/authService');
-                                await logoutAdmin();
-                            };
+                            const { logoutAdmin } = await import('../lib/authService');
 
                             if (isDirty) {
-                                showConfirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin keluar? Perubahan akan hilang.', performLogout);
+                                setIsSaving(true);
+                                const saved = await handleSave(true);
+                                if (saved) {
+                                    await logoutAdmin();
+                                } else {
+                                    showConfirm('Gagal auto-save. Yakin ingin keluar tanpa menyimpan?', async () => {
+                                        await logoutAdmin();
+                                    });
+                                }
+                                setIsSaving(false);
                             } else {
-                                performLogout();
+                                await logoutAdmin();
                             }
                         }}
                         className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-900/10 py-2.5 rounded-lg font-medium transition-colors"
