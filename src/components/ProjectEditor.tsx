@@ -23,6 +23,7 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
     const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
     const [imageRect, setImageRect] = useState<DOMRect | null>(null);
     const [isResizing, setIsResizing] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Update active state of formatting commands
     const updateActiveCommands = () => {
@@ -419,19 +420,27 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                     </nav>
                 </div>
                 <div className="flex items-center gap-4">
+                    {/* Hamburger Menu - Visible on Mobile */}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="lg:hidden text-slate-400 hover:text-white transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[24px]">{isMobileMenuOpen ? 'close' : 'menu'}</span>
+                    </button>
+
                     {/* Search Bar - Visual Only */}
                     <div className="relative hidden sm:block">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[18px]">search</span>
                         <input className="pl-10 pr-4 py-1.5 text-sm bg-[#262626] border-none text-slate-200 rounded-lg focus:ring-2 focus:ring-primary w-64 placeholder:text-slate-600 outline-none" placeholder="Search..." type="text" />
                     </div>
                     {/* User Profile - Visual Only */}
-                    <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center text-xs font-bold text-slate-400">
+                    <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 overflow-hidden hidden sm:flex items-center justify-center text-xs font-bold text-slate-400">
                         AU
                     </div>
                 </div>
             </header>
 
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden relative">
                 {/* Left Slim Sidebar - Hidden on mobile/tablet */}
                 <aside className="hidden lg:flex w-16 bg-[#1e1e1e] border-r border-slate-800 flex-col items-center py-4 gap-4">
                     <button className="p-2 text-primary bg-primary/10 rounded-lg" title="Edit Post">
@@ -572,106 +581,110 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             >
                                 <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_center</span>
                             </button>
-                        </div>
-                        <button
-                            onMouseDown={preventFocusLoss}
-                            onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
-                            className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
-                            title="Align Right"
-                        >
-                            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_right</span>
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0 px-2 leading-none">
-                        <input
-                            type="file"
-                            ref={imageInputRef}
-                            id="body-image-upload"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                        />
-                        <button
-                            type="button"
-                            onMouseDown={preventFocusLoss}
-                            onClick={() => {
-                                setTimeout(() => {
-                                    imageInputRef.current?.click();
-                                }, 0);
-                            }}
-                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95 group"
-                            title="Add Image"
-                        >
-                            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">image</span>
-                        </button>
-                    </div>
-            </div>
-
-            {/* Main Canvas Area */}
-            <div className="flex-1 flex overflow-hidden">
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 flex justify-center bg-[#121212]">
-                    <div className="document-canvas relative bg-[#262626] w-full max-w-[850px] min-h-[1100px] p-6 sm:p-8 md:p-16 rounded shadow-2xl border border-slate-800/50">
-                        <input
-                            className="w-full text-2xl sm:text-4xl font-extrabold border-none focus:ring-0 p-0 bg-transparent text-white placeholder:text-slate-700 outline-none mb-4 sm:mb-6"
-                            placeholder="Judul Postingan"
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                        <div
-                            ref={editorRef}
-                            contentEditable
-                            onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
-                            onClick={handleEditorClick}
-                            className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:transition-all [&_img.selected]:ring-2 [&_img.selected]:ring-primary/50"
-                        />
-
-                        {/* Image Editing Overlay - Integrated into Canvas */}
-                        {selectedImage && imageRect && (
-                            <div
-                                id="image-edit-overlay"
-                                className="absolute z-[100] pointer-events-none transition-none"
-                                style={{
-                                    top: imageRect.top,
-                                    left: imageRect.left,
-                                    width: imageRect.width,
-                                    height: imageRect.height,
-                                }}
+                            <button
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => { execCommand('justifyRight'); updateActiveCommands(); }}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md transition-all active:scale-95 ${activeCommands.justifyRight ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+                                title="Align Right"
                             >
-                                {/* No external border anymore per user request */}
+                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">format_align_right</span>
+                            </button>
+                        </div>
 
-                                {/* Delete Button */}
-                                <button
-                                    onClick={handleDeleteImage}
-                                    className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
-                                    title="Hapus Gambar"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">close</span>
-                                </button>
-
-                                {/* Resize Handle with larger hit area */}
-                                <div
-                                    onPointerDown={handleResizeStart}
-                                    className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
-                                    title="Tarik untuk mengubah ukuran"
-                                >
-                                    <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
-                                        <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
-                                    </div>
-                                </div>
-
-                                {/* Size Tooltip */}
-                                <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
-                                    {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
-                                </div>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-1 shrink-0 px-2 leading-none">
+                            <input
+                                type="file"
+                                ref={imageInputRef}
+                                id="body-image-upload"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onMouseDown={preventFocusLoss}
+                                onClick={() => {
+                                    setTimeout(() => {
+                                        imageInputRef.current?.click();
+                                    }, 0);
+                                }}
+                                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-primary transition-all active:scale-95 group"
+                                title="Add Image"
+                            >
+                                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">image</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                {/* Right Sidebar - Properties (Hidden on Mobile) */}
-                <aside className="hidden lg:flex w-72 bg-[#1e1e1e] border-l border-slate-800 overflow-y-auto flex-col">
+                    {/* Main Canvas Area */}
+                    <div className="flex-1 flex overflow-hidden">
+                        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 flex justify-center bg-[#121212]">
+                            <div className="document-canvas relative bg-[#262626] w-full max-w-[850px] min-h-[1100px] p-6 sm:p-8 md:p-16 rounded shadow-2xl border border-slate-800/50">
+                                <input
+                                    className="w-full text-2xl sm:text-4xl font-extrabold border-none focus:ring-0 p-0 bg-transparent text-white placeholder:text-slate-700 outline-none mb-4 sm:mb-6"
+                                    placeholder="Judul Postingan"
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
+                                <div
+                                    ref={editorRef}
+                                    contentEditable
+                                    onInput={(e) => setContent((e.target as HTMLElement).innerHTML)}
+                                    onClick={handleEditorClick}
+                                    className="prose prose-invert max-w-none text-slate-300 outline-none pb-20 min-h-[500px] prose-ul:list-disc prose-ol:list-decimal prose-ul:list-inside prose-ol:list-inside prose-li:marker:text-slate-400 [&_img]:cursor-pointer [&_img]:transition-all [&_img.selected]:ring-2 [&_img.selected]:ring-primary/50"
+                                />
+
+                                {/* Image Editing Overlay - Integrated into Canvas */}
+                                {selectedImage && imageRect && (
+                                    <div
+                                        id="image-edit-overlay"
+                                        className="absolute z-[100] pointer-events-none transition-none"
+                                        style={{
+                                            top: imageRect.top,
+                                            left: imageRect.left,
+                                            width: imageRect.width,
+                                            height: imageRect.height,
+                                        }}
+                                    >
+                                        {/* No external border anymore per user request */}
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={handleDeleteImage}
+                                            className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors pointer-events-auto z-[101]"
+                                            title="Hapus Gambar"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">close</span>
+                                        </button>
+
+                                        {/* Resize Handle with larger hit area */}
+                                        <div
+                                            onPointerDown={handleResizeStart}
+                                            className="absolute -bottom-4 -right-4 w-10 h-10 flex items-center justify-center cursor-nwse-resize pointer-events-auto z-[101] group/handle touch-none"
+                                            title="Tarik untuk mengubah ukuran"
+                                        >
+                                            <div className="w-4 h-4 bg-white border-2 border-primary rounded-sm shadow-md group-hover/handle:scale-125 group-hover/handle:bg-primary group-hover/handle:border-white transition-all flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 bg-primary group-hover/handle:bg-white rounded-full"></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Size Tooltip */}
+                                        <div className="size-tooltip absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded font-mono border border-slate-700">
+                                            {Math.round(imageRect.width)}px × {Math.round(imageRect.height)}px
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                {/* Right Sidebar - Properties (Desktop: Fixed, Mobile: Drawer) */}
+                <aside className={`
+                    fixed inset-y-0 right-0 z-40 w-72 bg-[#1e1e1e] border-l border-slate-800 flex flex-col transition-transform duration-300 transform lg:static lg:transform-none lg:flex
+                    ${isMobileMenuOpen ? 'translate-x-0 pt-16 lg:pt-0' : 'translate-x-full lg:translate-x-0'}
+                `}>
                     <div className="p-5 border-b border-slate-800">
                         <h3 className="font-bold text-sm text-white flex items-center gap-2">
                             <span className="material-symbols-outlined text-slate-500 text-[18px]">settings</span>
@@ -742,10 +755,10 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                             {coverImage ? (
                                 <img src={coverImage} className="w-full h-full object-cover" />
                             ) : (
-                                <>
+                                <div className="flex flex-col items-center">
                                     <span className="material-symbols-outlined text-slate-700 group-hover:text-slate-500 !text-3xl mb-2 transition-colors">add_photo_alternate</span>
                                     <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors">Click to upload image</span>
-                                </>
+                                </div>
                             )}
                             <input
                                 type="file"
@@ -765,10 +778,15 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                         </div>
                     </div>
                 </aside>
-            </div>
-        </main>
-            </div >
 
-        </div >
+                {/* Mobile Menu Overlay Backdrop */}
+                {isMobileMenuOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                )}
+            </div>
+        </div>
     );
 }
