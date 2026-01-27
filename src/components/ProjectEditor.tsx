@@ -147,6 +147,39 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
         editorRef.current?.focus();
     };
 
+    const applyFontSize = (size: string) => {
+        // execCommand 'fontSize' only supports 1-7. To use pixels, we apply 7 as a marker
+        // and then find that element and set its style.fontSize
+        document.execCommand('styleWithCSS', false, 'true');
+        document.execCommand('fontSize', false, '7');
+
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const fontElements = editorRef.current?.querySelectorAll('span[style*="font-size: xx-large"]');
+            fontElements?.forEach(el => {
+                const htmlEl = el as HTMLElement;
+                if (htmlEl.style.fontSize === 'xx-large') {
+                    htmlEl.style.fontSize = `${size}px`;
+                }
+            });
+
+            // Also check for <font size="7"> in case styleWithCSS didn't work as expected
+            const legacyFontElements = editorRef.current?.querySelectorAll('font[size="7"]');
+            legacyFontElements?.forEach(el => {
+                const fontEl = el as HTMLElement;
+                const span = document.createElement('span');
+                span.style.fontSize = `${size}px`;
+                span.innerHTML = fontEl.innerHTML;
+                fontEl.parentNode?.replaceChild(span, fontEl);
+            });
+        }
+
+        if (editorRef.current) {
+            setContent(editorRef.current.innerHTML);
+        }
+        editorRef.current?.focus();
+    };
+
     const handleSave = () => {
         onSave({
             ...project,
@@ -447,15 +480,27 @@ export default function ProjectEditor({ project, onSave, onCancel }: Props) {
                                     <option value="Courier New">Courier New</option>
                                 </select>
                                 <select
-                                    onChange={(e) => execCommand('fontSize', e.target.value)}
-                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-16 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
+                                    onChange={(e) => applyFontSize(e.target.value)}
+                                    className="text-xs border-slate-700 bg-[#262626] text-slate-300 rounded-md h-9 w-18 py-0 focus:ring-1 focus:ring-primary/50 outline-none px-2 transition-all hover:bg-slate-800"
                                 >
-                                    <option value="3">16px</option>
-                                    <option value="1">12px</option>
-                                    <option value="2">14px</option>
-                                    <option value="4">18px</option>
-                                    <option value="5">24px</option>
-                                    <option value="6">32px</option>
+                                    <option value="16">16px</option>
+                                    <option value="8">8px</option>
+                                    <option value="10">10px</option>
+                                    <option value="12">12px</option>
+                                    <option value="14">14px</option>
+                                    <option value="18">18px</option>
+                                    <option value="20">20px</option>
+                                    <option value="24">24px</option>
+                                    <option value="28">28px</option>
+                                    <option value="32">32px</option>
+                                    <option value="36">36px</option>
+                                    <option value="42">42px</option>
+                                    <option value="48">48px</option>
+                                    <option value="56">56px</option>
+                                    <option value="64">64px</option>
+                                    <option value="72">72px</option>
+                                    <option value="84">84px</option>
+                                    <option value="100">100px</option>
                                 </select>
                             </div>
                         </div>
