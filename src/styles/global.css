@@ -117,6 +117,9 @@ nav ul li a:hover::after {
     color: var(--text-light);
     margin-left: auto;
     padding-right: 1rem;
+    background: transparent;
+    border: none;
+    outline: none;
 }
 
 /* Home Section */
