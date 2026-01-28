@@ -639,14 +639,15 @@ footer {
 
     nav ul {
         position: fixed;
-        top: 70px;
+        top: 0;
         left: -100%;
         width: 100%;
-        height: calc(100vh - 70px);
+        height: 100vh;
         background-color: var(--card-bg);
         flex-direction: column;
         align-items: center;
-        padding-top: 2rem;
+        justify-content: center;
+        padding-top: 0;
         transition: var(--transition);
         z-index: 999;
     }
