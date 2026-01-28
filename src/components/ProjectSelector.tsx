@@ -7,16 +7,18 @@ interface ProjectSelectorProps {
 }
 
 export default function ProjectSelector({ initialProjects }: ProjectSelectorProps) {
-    const [projects, setProjects] = useState<Project[]>([]);
+    // Initialize with server-provided data to avoid flash of empty content
+    const [projects, setProjects] = useState<Project[]>(
+        initialProjects?.filter(p => p.status !== 'draft') || []
+    );
 
     useEffect(() => {
-        if (initialProjects && initialProjects.length > 0) {
-            setProjects(initialProjects.filter(p => p.status !== 'draft'));
-        } else {
+        // Only fetch from localStorage if no initial projects were provided
+        if ((!initialProjects || initialProjects.length === 0) && projects.length === 0) {
             const content = getContent();
             setProjects((content.projects || []).filter(p => p.status !== 'draft'));
         }
-    }, [initialProjects]);
+    }, []);
 
     if (projects.length === 0) {
         return <div style={{ textAlign: 'center', color: '#888', padding: '40px' }}>Belum ada proyek.</div>;
