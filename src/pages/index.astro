@@ -156,8 +156,40 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=3600')
 
     <section id="projects">
         <h2 class="section-title">Proyek Saya</h2>
-        {/* Pass initial projects to selector */}
-        <ProjectSelector client:visible initialProjects={content.projects} />
+        {/* Server-side rendered projects for immediate display */}
+        {content.projects && content.projects.filter(p => p.status !== 'draft').length > 0 ? (
+            <div class="projects-grid">
+                {content.projects.filter(p => p.status !== 'draft').map((project) => (
+                    <div class="project-card fade-in">
+                        <div class="project-card-image">
+                            {project.coverImage ? (
+                                <img src={project.coverImage} alt={project.title} loading="lazy" />
+                            ) : (
+                                <div class="project-placeholder">
+                                    <span>No Image</span>
+                                </div>
+                            )}
+                        </div>
+                        <div class="project-card-content">
+                            <h3 class="project-card-title">{project.title}</h3>
+                            <div class="project-card-desc" set:html={project.content.length > 150 ? project.content.substring(0, 150) + '...' : project.content} />
+                            {project.tags && project.tags.length > 0 && (
+                                <div class="project-card-tags">
+                                    {project.tags.slice(0, 3).map((tag) => (
+                                        <span class="project-tag">{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                            <a href={`/proyek/detail?id=${project.id}`} class="project-link-btn">
+                                Lihat Proyek →
+                            </a>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <div style="text-align: center; color: #888; padding: 40px;">Belum ada proyek.</div>
+        )}
     </section>
 
     <section id="contact">
